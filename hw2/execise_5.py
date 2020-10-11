@@ -105,3 +105,4 @@ class exercise_5:
             C_obs[i] = np.append(np.radians(degree),C_obs[i] )
             C_obs[i] = tuple(C_obs[i])
         return C_obs
+    
