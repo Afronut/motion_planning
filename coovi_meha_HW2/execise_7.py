@@ -30,18 +30,14 @@ class execise_7:
         theta3 = 0
         x3 = end_point_x - l3*cos(radians(theta))
         y3 = end_point_y - l3*sin(radians(theta))
-
+        print(x3, y3)
         try:
-            val = (1/(l1*l2*2)*((x3**2 + y3**2)-(l1**2+l2**2)))
+            val = ((x3**2 + y3**2)-(l1**2+l2**2))/(l1*l2*2)
             theta2 = acos(val)
         except:
-            try:
-                val = (1/(l1*l2*2)*((x3**2 + y3**2)-(l1**2+l2**2)))
-                theta2 = acos(val)
-            except:
-                print(" Theta 2 Solution not Found: Please reajust imput parameters\nValue cos(theta2): ",
-                      val, "\nType:", type(val))
-                exit()
+            print(" Theta 2 Solution not Found: Please reajust imput parameters\nValue cos(theta2): ",
+                  val)
+            exit()
         try:
             val = 1/(x3**3+y3**3)*(x3*(l1+l2*cos(theta2)) +
                                    y3*l2*(1 - cos(theta2)**2)**.5)
@@ -53,7 +49,7 @@ class execise_7:
                 theta1 = acos(val)
             except:
                 print("Theta3 Solution not Found: Please reajust imput parameters\nValue cos(theta3): ",
-                      val, "\nType:", type(val))
+                      val)
                 exit()
 
         theta3 = radians(theta)-(theta2 + theta1)

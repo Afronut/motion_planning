@@ -7,7 +7,7 @@ import math
 import numpy as np
 
 
-class exercise_5:
+class execise_5:
     def __init__(self, robot_vect, obs_vect):
         self.robot_vect = robot_vect
         self.obs_vect = obs_vect
@@ -74,7 +74,7 @@ class exercise_5:
             if i == len(vect_robot)-1:
                 i = -1
             if j == len(vect_obst)-1:
-                    j = -1
+                j = -1
             if ang_obs < ang_rob:
                 # print(degree_ob)
                 # print(degree_robot)
@@ -97,12 +97,11 @@ class exercise_5:
                     ang_obs = degree_ob.pop(0)
                 if len(degree_robot) != 0:
                     ang_rob = degree_robot.pop(0)
-            if (len(degree_robot) == 0 and not len(degree_ob) == 0) or len(C_obs)==(len(vect_robot)+len(vect_obst)-2):
+            if (len(degree_robot) == 0 and not len(degree_ob) == 0) or len(C_obs) == (len(vect_robot)+len(vect_obst)-2):
                 done = True
             # print(C_obs)
         for i in range(0, len(C_obs)):
             # print(degree)
-            C_obs[i] = np.append(np.radians(degree),C_obs[i] )
+            C_obs[i] = np.append(np.radians(degree), C_obs[i])
             C_obs[i] = tuple(C_obs[i])
         return C_obs
-    
