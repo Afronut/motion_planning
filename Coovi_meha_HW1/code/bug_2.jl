@@ -22,6 +22,7 @@ function bug2_w2(w2)
      
     plot!([start.x, 4], [ start.y, 0], legend=false, color=:black, arrow=:arrow, linewidth=4)
     dist = follower(path, goal)
+    println("Total Distance is : ", dist)
 end
 
 

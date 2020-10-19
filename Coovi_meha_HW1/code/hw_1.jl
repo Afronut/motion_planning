@@ -120,6 +120,7 @@ function main(args)
             png("bug2_w2")
         end
 
+        
         return
     end
 
