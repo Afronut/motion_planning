@@ -46,6 +46,7 @@ class exercise2:
             q.append(q[iters]-step_size*pot_fun)
 
             iters += 1
+        return q, pot_fun
 
     def get_dis_to_obs(self, position):
         num_obs = len(self.center)

@@ -8,10 +8,10 @@ if __name__ == "__main__":
     goal = [10, 0]
     length = 1
     exo2 = exercise2(start, goal, center, length)
-    exo2.compute()
-    # for i in range(0, len(ret)):
-    #     plt.plot(ret[i][0], ret[i][1])
-    # plt.xlim([-20, 20])
-    # plt.ylim([-20, 20])
-    # plt.show()
+    obs= exo2.make_obs()
+    for i in range(0, len(obs)):
+        plt.plot(obs[i][0], obs[i][1])
+    plt.xlim([-20, 20])
+    plt.ylim([-20, 20])
+    plt.show()
     # print(len(ret[1][1]))
