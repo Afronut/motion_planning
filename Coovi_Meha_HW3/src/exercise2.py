@@ -2,6 +2,9 @@
 import numpy as np
 from math import pi, sin, cos
 from numpy import array
+from shapely import wkt
+from shapely.geometry import Polygon, Point, mapping
+import matplotlib.pyplot as plt
 
 
 class exercise2:
@@ -15,36 +18,33 @@ class exercise2:
         self.is_coord = is_coord
 
     def potential_func(self):
+        # fig = plt.figure()
         pot_fun = float('inf')
         pot_att = float('inf')
-        scale = .1
-        n = 0.1
+        scale = .2
+        n = 0.5
         iters = 0
-        step_size = 0.01
+        step_size = 0.3
         d_goal_start = 1
-        d_q_start = 0.2
+        d_q_start = 1
         q = [self.start]
-        u_reps = []
-        u_atts = []
+        prev_nor = 0
+        prev_q = self.start
         while np.linalg.norm(array(q[iters])-array(self.goal)) > self.epsi:
-            distance_from_obs_edge, edge_point = self.get_dis_to_obs(
-                q[iters])
-            u_att = 0
+            if self.is_coord:
+                distance_from_obs_edge, edge_point = self.dis_to_obs(
+                    q[iters])
+            else:
+                distance_from_obs_edge, edge_point = self.get_dis_to_obs(
+                    q[iters])
             if np.linalg.norm(array(q[iters])-array(self.goal)) <= d_goal_start:
                 pot_att = scale * (array(q[iters])-array(self.goal))
-                u_att = .5*scale * \
-                    np.linalg.norm(array(q[iters])-array(self.goal))
             else:
                 pot_att = d_goal_start * scale * \
                     (array(q[iters]) - array(self.goal)) / \
                     np.linalg.norm(array(q[iters])-array(self.goal))
-                u_att = d_goal_start*scale * \
-                    np.linalg.norm(
-                        array(q[iters])-array(self.goal)) - .5*scale*d_goal_start**2
             pot_repu_i = 0
             pot_repu = 0
-            rep = 0
-            u_rep = 0
             for i in range(0, len(self.center)):
                 if distance_from_obs_edge[i] <= d_q_start:
                     num = 1/d_q_start-1/distance_from_obs_edge[i]
@@ -53,19 +53,19 @@ class exercise2:
                     d_sq = 1/distance_from_obs_edge[i]**2
                     pot_repu_i = n*num*grad*d_sq
 
-                    rep = .5*n*(1/distance_from_obs_edge[i] - 1/d_q_start)**2
                 else:
                     pot_repu_i = 0
-                    rep = 0
                 pot_repu += pot_repu_i
-                u_rep += rep
-            u_reps.append(u_rep)
-            u_atts.append(u_att)
             pot_fun = pot_att+pot_repu
+
+            q[iters][1] = q[iters][1]-step_size/10
+            plt.scatter(q[iters][0], q[iters][1])
+            plt.pause(0.001)
+            prev_q = q[iters]
             q.append(q[iters]-step_size*pot_fun)
 
             iters += 1
-        return q, pot_fun, u_atts, u_reps
+        return q, pot_fun
 
     def get_dis_to_obs(self, position):
         num_obs = len(self.center)
@@ -80,6 +80,23 @@ class exercise2:
             edge_point.append([obs_position[0]-self.radius[i] *
                                np.cos(edge_point_ang), obs_position[1]-self.radius[i]*np.sin(edge_point_ang)])
         return distance_from_obs_edge, edge_point
+
+    def dis_to_obs(self, position):
+        num_obs = len(self.center)
+        point = Point(position)
+        # point = wkt.loads(point)
+        distances = []
+        points = []
+        for i in range(0, num_obs):
+            polygon = Polygon(self.center[i])
+            # polygon = wkt.loads(polygon)
+            c_dis = polygon.boundary.distance(point)
+            c_point = polygon.exterior.interpolate(
+                polygon.exterior.project(point)).wkt
+            c_point = wkt.loads(c_point)
+            points.append(list(c_point.coords)[0])
+            distances.append(c_dis)
+        return distances, points
 
     def make_obs(self):
         angles = np.linspace(0, 2*pi, 5)
@@ -105,16 +122,13 @@ class exercise2:
         self.center = centers
 
     def compute(self):
-        if self.is_coord:
-            self.make_centers()
-        q, pot_fun, u_atts, u_reps = self.potential_func()
+        q, pot_fun = self.potential_func()
         path_len = self.path_length(q)
         print("Total Path length is: ", path_len)
         q = list(zip(*q))
-        return q, pot_fun, u_atts, u_reps
+        return q, pot_fun
 
     def potenfield_generator(self):
-
         scale = .1
         n = 0.1
         d_goal_start = 1
@@ -126,7 +140,12 @@ class exercise2:
         for i in range(0, len(q1)):
             for j in range(0, len(q1)):
                 qi = [q1[i], q2[j]]
-                distance_from_obs_edge, edge_point = self.get_dis_to_obs(qi)
+                if self.is_coord:
+                    distance_from_obs_edge, edge_point = self.dis_to_obs(
+                        qi)
+                else:
+                    distance_from_obs_edge, edge_point = self.get_dis_to_obs(
+                        qi)
                 u_att = 0
                 if np.linalg.norm(array(qi)-array(self.goal)) <= d_goal_start:
                     u_att = .5*scale * \

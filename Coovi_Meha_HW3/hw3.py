@@ -57,16 +57,39 @@ def test_exo2_b():
         [(19,  0), (20,  0), (20,  5), (19,  5)],
         [(24,  -5), (25,  -5), (25,  1), (24,  1)],
         [(29,  0), (30,  0), (30,  5), (29,  5)]]
-    center = w1
-    start = [0, 0]
-    goal = [10, 10]
-    length = 1
-    fig = plt.figure(1, figsize=plt.figaspect(4.))
-    exo2 = exercise2(start, goal, center, length,True)
-    q, pot_fun, u_atts, u_reps = exo2.compute()
+    fig = plt.figure()
+    center = w2
+
     ax = fig.add_subplot(2, 1, 1)
-    ax.scatter([0, 10], [0, 10])
-    w1_point=zip(*w1)
-    ax.plot(w1_point[0], w1_point[1])
+    ax.scatter([0, 35], [0, 0])
+    for i in range(0, len(center)):
+        x, y = list(zip(*center[i]))
+        x = list(x)
+        y = list(y)
+        x.append(x[0])
+        y.append(y[0])
+        ax.plot(x, y)
+    start = [0, 0]
+    goal = [35, 0]
+    length = 1
+
+    exo2 = exercise2(start, goal, center, length, True)
+    q, pot_fun = exo2.compute()
+    iters = 10
+    for i in range(iters, len(q[0])-iters, iters):
+        ax.plot([q[0][i], q[0][i+iters]], [q[1][i], q[1][i+iters]])
+        plt.pause(0.01)
+    # ret = exo2.dis_to_obs([3, 3])
+    # print(ret)
+
+    x, y, z = exo2.potenfield_generator()
+    ax = fig.add_subplot(2, 1, 2, projection='3d')
+    X, Y = np.meshgrid(x, y)
+    color_map = plt.cm.get_cmap('jet_r')
+    ax.plot_surface(X, Y, z,
+                    cmap=color_map, edgecolor='none')
+    plt.show()
+
+
 if __name__ == "__main__":
     test_exo2_b()
