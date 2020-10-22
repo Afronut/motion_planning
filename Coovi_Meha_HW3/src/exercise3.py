@@ -73,17 +73,18 @@ class exercise3:
             "id": 1
         }
         next_to_visit.append(marked)
+        has_marked = []
         nodes = []
         obs_cords, obs_meshes = self.meshgrid_obs()
         # print(len(obs_cords))
         X, Y, w_cords = self.meshgrid_workspace()
+        w_cords.remove(tuple(self.goal))
         while next_to_visit:
             marking = next_to_visit.pop(0)
             if marking not in nodes:
                 nodes.append(marking)
-            # w_cords.remove(marking)
+                has_marked.append(marking["point"])
             neighbors = self.get_neighbors(marking["point"])
-            print(len(next_to_visit))
             for neighbor in neighbors:
                 if neighbor in obs_cords:
                     marked = {
@@ -100,19 +101,20 @@ class exercise3:
                     except:
                         pass
                 elif neighbor in w_cords:
-                    marked = {
-                        "point": neighbor,
-                        "id": marking["id"]+1
-                    }
-                    next_to_visit.append(marked)
-                    try:
-                        w_cords.remove(neighbor)
-                    except:
-                        pass
-                    try:
-                        obs_cords.remove(neighbor)
-                    except:
-                        pass
+                    if marking["id"] is not -1 and neighbor not in has_marked:
+                        marked = {
+                            "point": neighbor,
+                            "id": marking["id"]+1
+                        }
+                        next_to_visit.append(marked)
+                        try:
+                            w_cords.remove(neighbor)
+                        except:
+                            pass
+                        try:
+                            obs_cords.remove(neighbor)
+                        except:
+                            pass
         return nodes
 
     def get_neighbors(self, point):
@@ -123,7 +125,7 @@ class exercise3:
                 (point[0]-1, point[1]+1),
                 (point[0]+1, point[1]+1),
                 (point[0]-1, point[1]-1),
-                (point[0]-1, point[1]+1)]
+                (point[0]+1, point[1]-1)]
 
     def compute(self):
         # X, Y, cords = self.meshgrid_workspace()
@@ -138,4 +140,11 @@ class exercise3:
                 plt.scatter(point[0], point[1], c="r")
             else:
                 plt.scatter(point[0], point[1], c="b")
+            id_t = node["id"]
+            label = "{}".format(id_t)
+            plt.annotate(label,
+                         point,
+                         textcoords="offset points",
+                         xytext=(0, 10),
+                         ha='center')
         plt.show()
