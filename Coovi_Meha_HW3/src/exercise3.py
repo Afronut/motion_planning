@@ -9,6 +9,7 @@ class exercise3:
         self.start = start
         self.goal = goal
         self.fig = plt.figure()
+        self.step = .5
 
     def meshgrid_obs(self):
         meshes = []
@@ -20,8 +21,11 @@ class exercise3:
             min_y = min(ob_cords[1])
             max_x = max(ob_cords[0])
             max_y = max(ob_cords[1])
-            x = list(range(min_x, max_x+1))
-            y = list(range(min_y, max_y+1))
+            # x = list(range(min_x, max_x+1, self.step))
+            # y = list(range(min_y, max_y+1, self.step))
+
+            x = np.arange(min_x, max_x+1, self.step)
+            y = np.arange(min_y, max_y+1, self.step)
             X, Y = np.meshgrid(x, y)
             plt.scatter(X, Y, c="r")
             meshes.append([X, Y])
@@ -59,8 +63,8 @@ class exercise3:
 
     def meshgrid_workspace(self):
         min_c, max_c = self.min_max_cords()
-        x = list(range(min_c[0]-1, max_c[0]+2))
-        y = list(range(min_c[1]-1, max_c[1]+2))
+        x = np.arange(min_c[0]-1, max_c[0]+2, self.step)
+        y = np.arange(min_c[1]-1, max_c[1]+2, self.step)
         X, Y = np.meshgrid(x, y)
         coordinates = []
         for xx, yy in zip(X, Y):
@@ -76,9 +80,12 @@ class exercise3:
         next_to_visit.append(marked)
         has_marked = []
         nodes = []
+        nodes.append(marked)
+        has_marked.append(marked["point"])
         obs_cords, obs_meshes = self.meshgrid_obs()
         # print(len(obs_cords))
         X, Y, w_cords = self.meshgrid_workspace()
+        # print(w_cords)
         w_cords.remove(tuple(self.goal))
         while next_to_visit:
             marking = next_to_visit.pop(0)
@@ -119,10 +126,10 @@ class exercise3:
         return nodes, has_marked
 
     def get_neighbors(self, point):
-        return [(point[0]-1, point[1]),
-                (point[0]+1, point[1]),
-                (point[0], point[1]+1),
-                (point[0], point[1]-1)]
+        return [(point[0]-self.step, point[1]),
+                (point[0]+self.step, point[1]),
+                (point[0], point[1]+self.step),
+                (point[0], point[1]-self.step)]
 
     def make_path(self):
         path = []
@@ -152,10 +159,12 @@ class exercise3:
                         temp_node = n_point
             node = temp_node
             t_dis += prev_dis
-            print(t_dis)
+            # print(t_dis)
+
+            path.append(node)
             if node["id"] == goal["id"]:
                 break
-            path.append(node)
+
         final_path = []
         for p in path:
             final_path.append(p["point"])

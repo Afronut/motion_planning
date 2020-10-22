@@ -109,8 +109,8 @@ def test_exo3():
         [(24,  -5), (25,  -5), (25,  1), (24,  1)],
         [(29,  0), (30,  0), (30,  5), (29,  5)]]
     start = [0, 0]
-    goal = [35, 0]
-    exo3 = exercise3(start, goal, w2)
+    goal = [10, 10]
+    exo3 = exercise3(start, goal, w1)
     nodes, path = exo3.compute()
     for node in nodes:
         point = node["point"]
@@ -125,7 +125,7 @@ def test_exo3():
                      textcoords="offset points",
                      xytext=(0, 5),
                      ha='center')
-    plt.plot(path[0], path[1])
+    plt.plot(path[0], path[1], linewidth=4, c="black")
     plt.show()
     # exo3.meshgrid_obs()
 
