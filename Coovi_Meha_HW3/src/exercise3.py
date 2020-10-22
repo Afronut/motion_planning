@@ -1,19 +1,33 @@
-import numoy as np
+import numpy as np
+import matplotlib.pyplot as plt
 
 
-class exercise_3:
-    def __init_(self, start, goal, obs):
+class exercise3:
+    def __init__(self, start, goal, obs):
         self.obs = obs
         self.start = start
         self.goal = goal
+        self.fig = plt.figure()
 
     def meshgrid_obs(self):
+        meshes = []
+        cords = []
         for ob in self.obs:
+            cord = []
             ob_cords = list(zip(*ob))
             min_x = min(ob_cords[0])
             min_y = min(ob_cords[1])
             max_x = max(ob_cords[0])
             max_y = max(ob_cords[1])
+            x = list(range(min_x, max_x+1))
+            y = list(range(min_y, max_y+1))
+            X, Y = np.meshgrid(x, y)
+            plt.scatter(X, Y, c="r")
+            meshes.append([X, Y])
+            for xx, yy in zip(X, Y):
+                cord += list(zip(xx, yy))
+            cords += cord
+        return cords, meshes
 
     def min_max_cords(self):
         MAXs_x = []
@@ -44,14 +58,84 @@ class exercise_3:
 
     def meshgrid_workspace(self):
         min_c, max_c = self.min_max_cords()
-        x = list(range(min_c[0], max_c[0]+1))
-        y = list(range(min_c[1], max_c[1]+1))
+        x = list(range(min_c[0]-1, max_c[0]+2))
+        y = list(range(min_c[1]-1, max_c[1]+2))
         X, Y = np.meshgrid(x, y)
         coordinates = []
-        for i in range(len(Y)):
-            coordinates.append(list(zip(X[i], Y[i])))
-
+        for xx, yy in zip(X, Y):
+            coordinates += (list(zip(xx, yy)))
         return X, Y, coordinates,
 
     def make_nodes(self):
-        pass
+        next_to_visit = []
+        marked = {
+            "point": self.goal,
+            "id": 1
+        }
+        next_to_visit.append(marked)
+        nodes = []
+        obs_cords, obs_meshes = self.meshgrid_obs()
+        # print(len(obs_cords))
+        X, Y, w_cords = self.meshgrid_workspace()
+        while next_to_visit:
+            marking = next_to_visit.pop(0)
+            if marking not in nodes:
+                nodes.append(marking)
+            # w_cords.remove(marking)
+            neighbors = self.get_neighbors(marking["point"])
+            print(len(next_to_visit))
+            for neighbor in neighbors:
+                if neighbor in obs_cords:
+                    marked = {
+                        "point": neighbor,
+                        "id": -1
+                    }
+                    next_to_visit.append(marked)
+                    try:
+                        w_cords.remove(neighbor)
+                    except:
+                        pass
+                    try:
+                        obs_cords.remove(neighbor)
+                    except:
+                        pass
+                elif neighbor in w_cords:
+                    marked = {
+                        "point": neighbor,
+                        "id": marking["id"]+1
+                    }
+                    next_to_visit.append(marked)
+                    try:
+                        w_cords.remove(neighbor)
+                    except:
+                        pass
+                    try:
+                        obs_cords.remove(neighbor)
+                    except:
+                        pass
+        return nodes
+
+    def get_neighbors(self, point):
+        return [(point[0]-1, point[1]),
+                (point[0]+1, point[1]),
+                (point[0], point[1]+1),
+                (point[0], point[1]-1),
+                (point[0]-1, point[1]+1),
+                (point[0]+1, point[1]+1),
+                (point[0]-1, point[1]-1),
+                (point[0]-1, point[1]+1)]
+
+    def compute(self):
+        # X, Y, cords = self.meshgrid_workspace()
+
+        # plt.scatter(X, Y)
+        # self.meshgrid_obs()
+        # plt.show()
+        nodes = self.make_nodes()
+        for node in nodes:
+            point = node["point"]
+            if node["id"] == -1:
+                plt.scatter(point[0], point[1], c="r")
+            else:
+                plt.scatter(point[0], point[1], c="b")
+        plt.show()
