@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from numpy import array
 
 
 class exercise3:
@@ -69,7 +70,7 @@ class exercise3:
     def make_nodes(self):
         next_to_visit = []
         marked = {
-            "point": self.goal,
+            "point": tuple(self.goal),
             "id": 1
         }
         next_to_visit.append(marked)
@@ -115,36 +116,52 @@ class exercise3:
                             obs_cords.remove(neighbor)
                         except:
                             pass
-        return nodes
+        return nodes, has_marked
 
     def get_neighbors(self, point):
         return [(point[0]-1, point[1]),
                 (point[0]+1, point[1]),
                 (point[0], point[1]+1),
-                (point[0], point[1]-1),
-                (point[0]-1, point[1]+1),
-                (point[0]+1, point[1]+1),
-                (point[0]-1, point[1]-1),
-                (point[0]+1, point[1]-1)]
+                (point[0], point[1]-1)]
+
+    def make_path(self):
+        path = []
+        nodes, has_marked = self.make_nodes()
+        s_id = has_marked.index(tuple(self.start))
+        start = nodes[s_id]
+        g_id = has_marked.index(tuple(self.goal))
+        goal = nodes[g_id]
+        node = start
+        t_dis = 0
+        path.append(node)
+        while nodes is not tuple(self.goal):
+            neighbors = self.get_neighbors(node["point"])
+            prev_dis = float("inf")
+            temp_node = []
+            for neighbor in neighbors:
+                if neighbor in has_marked:
+                    x_id = has_marked.index(neighbor)
+                    n_point = nodes[x_id]
+                    if n_point["id"] is -1:
+                        continue
+                    # print(neighbor)
+                    dis = np.linalg.norm(array(neighbor)-array(node["point"]))
+                    # print(dis)
+                    if dis <= prev_dis and n_point["id"] < node["id"]:
+                        prev_dis = dis
+                        temp_node = n_point
+            node = temp_node
+            t_dis += prev_dis
+            print(t_dis)
+            if node["id"] == goal["id"]:
+                break
+            path.append(node)
+        final_path = []
+        for p in path:
+            final_path.append(p["point"])
+        # print(start, s_id)
+        final_path = list(zip(*final_path))
+        return nodes, final_path
 
     def compute(self):
-        # X, Y, cords = self.meshgrid_workspace()
-
-        # plt.scatter(X, Y)
-        # self.meshgrid_obs()
-        # plt.show()
-        nodes = self.make_nodes()
-        for node in nodes:
-            point = node["point"]
-            if node["id"] == -1:
-                plt.scatter(point[0], point[1], c="r")
-            else:
-                plt.scatter(point[0], point[1], c="b")
-            id_t = node["id"]
-            label = "{}".format(id_t)
-            plt.annotate(label,
-                         point,
-                         textcoords="offset points",
-                         xytext=(0, 10),
-                         ha='center')
-        plt.show()
+        return self.make_path()

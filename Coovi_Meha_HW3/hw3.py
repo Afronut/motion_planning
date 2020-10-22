@@ -109,9 +109,24 @@ def test_exo3():
         [(24,  -5), (25,  -5), (25,  1), (24,  1)],
         [(29,  0), (30,  0), (30,  5), (29,  5)]]
     start = [0, 0]
-    goal = [10, 10]
-    exo3 = exercise3(start, goal, w1)
-    exo3.compute()
+    goal = [35, 0]
+    exo3 = exercise3(start, goal, w2)
+    nodes, path = exo3.compute()
+    for node in nodes:
+        point = node["point"]
+        if node["id"] == -1:
+            plt.scatter(point[0], point[1], c="r")
+        else:
+            plt.scatter(point[0], point[1], c="b")
+        id_t = node["id"]
+        label = "{}".format(id_t)
+        plt.annotate(label,
+                     point,
+                     textcoords="offset points",
+                     xytext=(0, 5),
+                     ha='center')
+    plt.plot(path[0], path[1])
+    plt.show()
     # exo3.meshgrid_obs()
 
 
