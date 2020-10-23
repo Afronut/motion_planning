@@ -21,12 +21,12 @@ class exercise2:
         # fig = plt.figure()
         pot_fun = float('inf')
         pot_att = float('inf')
-        scale = .1
-        n = .2
+        scale = .2
+        n = .5
         iters = 0
-        step_size = .1
-        d_goal_start = 10
-        d_q_start = 1
+        step_size = .2
+        d_goal_start = 1
+        d_q_start = 0.5
         q = [self.start]
         prev_nor = 0
         prev_q = self.start
@@ -59,17 +59,13 @@ class exercise2:
             pot_fun = pot_att+pot_repu
             # print(prev_q, q[iters])
 
-            plt.scatter(q[iters][0], q[iters][1])
-            plt.pause(0.001)
+            # plt.scatter(q[iters][0], q[iters][1])
+            # plt.pause(0.001)
+            if prev_q[0] == q[iters][0] and prev_q[1] == q[iters][1]:
+                q[iters][0] = q[iters][0]+step_size/100
             # print(q)
 
             q += [q[iters]-step_size*pot_fun]
-            if prev_q[0] == q[iters][0] and prev_q[1] == q[iters][1]:
-                ip = input()
-                if ip == "u":
-                    q[-1][0] = q[-1][0]+step_size/10
-                elif ip == "d":
-                    q[-1][0] = q[-1][0]-step_size/10
 
             # print(q)
             prev_q = q[iters]

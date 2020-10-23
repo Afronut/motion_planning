@@ -44,7 +44,7 @@ def test_exo2_a():
     plt.show()
 
 
-def test_exo2_bw2():
+def test_exo2_bw1():
     w1 = [[(1,  1), (2,  1), (2,  5), (1,  5)],
           [(3,  4), (4,  4), (4,  12), (3,  12)],
           [(3,  12), (12,  12), (12,  13), (3,  13)],
@@ -139,7 +139,7 @@ def test_exo2_bw2():
 
     # ret = exo2.dis_to_obs([3, 3])
     # print(ret)
-
+    print("This algorith can not find path to goal")
     x, y, z = exo2.potenfield_generator()
     ax = fig.add_subplot(2, 1, 2, projection='3d')
     X, Y = np.meshgrid(x, y)
@@ -248,7 +248,7 @@ def test_exo4(arg):
 
 
 if __name__ == "__main__":
-    ip = input("Please choose exercise number: ex- 1 or 2 :")
+    ip = input("Please choose exercise number: ex- 3 or 2 :")
     try:
         ip = int(ip)
     except:
@@ -276,4 +276,4 @@ if __name__ == "__main__":
         elif ip == "b":
             test_exo4("b")
         elif ip == "c":
-            test_exo2_bw2("c")
+            test_exo4("c")
