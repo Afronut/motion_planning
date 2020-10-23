@@ -21,11 +21,11 @@ class exercise2:
         # fig = plt.figure()
         pot_fun = float('inf')
         pot_att = float('inf')
-        scale = .2
-        n = 0.5
+        scale = .1
+        n = .2
         iters = 0
-        step_size = 0.3
-        d_goal_start = 1
+        step_size = .1
+        d_goal_start = 10
         d_q_start = 1
         q = [self.start]
         prev_nor = 0
@@ -57,13 +57,22 @@ class exercise2:
                     pot_repu_i = 0
                 pot_repu += pot_repu_i
             pot_fun = pot_att+pot_repu
+            # print(prev_q, q[iters])
 
-            q[iters][1] = q[iters][1]-step_size/10
             plt.scatter(q[iters][0], q[iters][1])
             plt.pause(0.001)
-            prev_q = q[iters]
-            q.append(q[iters]-step_size*pot_fun)
+            # print(q)
 
+            q += [q[iters]-step_size*pot_fun]
+            if prev_q[0] == q[iters][0] and prev_q[1] == q[iters][1]:
+                ip = input()
+                if ip == "u":
+                    q[-1][0] = q[-1][0]+step_size/10
+                elif ip == "d":
+                    q[-1][0] = q[-1][0]-step_size/10
+
+            # print(q)
+            prev_q = q[iters]
             iters += 1
         return q, pot_fun
 
@@ -113,7 +122,7 @@ class exercise2:
         self.radius = []
         for i in range(0, len(self.center)):
             uzip_center = list(zip(*self.center[i]))
-            print(uzip_center)
+            # print(uzip_center)
             center = [sum(uzip_center[0])/len(uzip_center[0]),
                       sum(uzip_center[1])/len(uzip_center[1])]
             radius = np.linalg.norm(array(center)-array(self.center[i][1]))
@@ -126,7 +135,7 @@ class exercise2:
         path_len = self.path_length(q)
         print("Total Path length is: ", path_len)
         q = list(zip(*q))
-        return q, pot_fun
+        return q, pot_fun, path_len
 
     def potenfield_generator(self):
         scale = .1

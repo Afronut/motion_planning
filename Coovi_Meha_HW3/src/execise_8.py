@@ -2,69 +2,40 @@ from math import cos, sin, radians, acos, degrees
 import numpy as np
 import matplotlib.pyplot as plt
 import time
+from src.execise_7 import execise_7
+from shapely.geometry import Polygon, Point, mapping, LineString
 
 
 class execise_8:
-    def __init__(self, links=[], n_obs=0, obs_vect=[], max_theta1=360, max_theta2=360, step=2):
+    def __init__(self, links=[], n_obs=0, obs_vect=[], max_theta=180, min_theta=0, step=5):
         self.links = links
         self.n_obs = n_obs
         self.obs_vect = obs_vect
-        self.max_theta1 = max_theta1
-        self.max_theta2 = max_theta2
+        self.max_theta = max_theta
+        self.min_theta = min_theta
         self.step = step
 
-    def compute(self):
-        start = time.clock()
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        img = []
-        links_coordinate = []
-        c_obs = []
-        for i in range(0, self.max_theta1, self.step):
-            for j in range(0, self.max_theta2, self.step):
-                links_coordinates = self.rotate_link(self.links, [i, j])
-                discret_points = self.discretise_links(links_coordinates)
-                c_obs = self.collision_check(discret_points)
-
-                if c_obs:
-                    c_obs = [[i for i, j in c_obs],
-                             [j for i, j in c_obs]]
-                    theta1 = i * np.ones(len(c_obs[0]))
-                    theta2 = np.linspace(0, self.max_theta2, len(c_obs[0]))
-                    img = ax.scatter(c_obs[0],  c_obs[1], theta1,
-                                     c=theta2, cmap=plt.hot())
-
-                    # plt.pause(0.001)
-        fig.colorbar(img)
-        end = time.clock()
-        plt.title("Program took:{} s".format(end-start))
-        plt.show()
     def get_c_space(self):
-        # start = time.clock()
-        # fig = plt.figure()
-        # ax = fig.add_subplot(111, projection='3d')
-        img = []
-        links_coordinate = []
-        c_obs = []
-        for i in range(0, self.max_theta1, self.step):
-            for j in range(0, self.max_theta2, self.step):
+        c_obstacle_angle = []
+        work_space_angle = []
+        c_obstacle_ep = []
+        work_space_ep = []
+        free_space_a = []
+        free_space_ep = []
+        for i in range(self.min_theta, self.max_theta+self.step, self.step):
+            for j in range(self.min_theta, self.max_theta+self.step, self.step):
                 links_coordinates = self.rotate_link(self.links, [i, j])
-                discret_points = self.discretise_links(links_coordinates)
-                c_obs = self.collision_check(discret_points)
-
-                if c_obs:
-                    c_obs = [[i for i, j in c_obs],
-                             [j for i, j in c_obs]]
-                    theta1 = i * np.ones(len(c_obs[0]))
-                    theta2 = np.linspace(0, self.max_theta2, len(c_obs[0]))
-                    # img = ax.scatter(c_obs[0],  c_obs[1], theta1,
-                                    #  c=theta2, cmap=plt.hot())
-
-                    # plt.pause(0.001)
-        # fig.colorbar(img)
-        # end = time.clock()
-        # plt.title("Program took:{} s".format(end-start))
-        plt.show()
+                c_obs_a, c_obs_ep, work_c_a, work_c_ep, f_space_a, f_space_ep = self.collision_check(
+                    links_coordinates, (i, j))
+                work_space_angle += work_c_a
+                work_space_ep += work_c_ep
+                if c_obs_a and c_obs_ep:
+                    c_obstacle_angle += c_obs_a
+                    c_obstacle_ep += c_obs_ep
+                else:
+                    free_space_a += f_space_a
+                    free_space_ep += f_space_ep
+        return c_obstacle_angle, c_obstacle_ep, work_space_angle, work_space_ep, free_space_a, free_space_ep
 
     def plot_obs(self, triangles):
         pass
@@ -117,17 +88,28 @@ class execise_8:
                 point_discret.append(d_point)
         return point_discret
 
-    def collision_check(self, points):
-        c_osctable = []
-        for link in points:
-            x, y = link
-            if (len(x) != len(y)):
-                exit()
-            for i in range(0, len(x)):
-                colid = self.is_collision(x[i], y[i])
-                if colid:
-                    c_osctable.append((x[i], y[i]))
-        return c_osctable
+    def collision_check(self, points, angle):
+        c_obstacle_angle = []
+        work_space_angle = []
+        c_obstacle_ep = []
+        work_space_ep = []
+        free_space_a = []
+        free_space_ep = []
+        anges = tuple(np.around(angle, decimals=4))
+        exo7 = execise_7([1, 1], [anges[0], anges[1]])
+        cords = exo7.get_coordonates()
+        cord = tuple(np.around(cords[-1], decimals=4))
+        work_space_angle.append(anges)
+        work_space_ep.append(cord)
+        for i in range(0, len(points)-1):
+            colid = self.is_collision([tuple(points[i]), tuple(points[i+1])])
+            if colid:
+                c_obstacle_angle.append(anges)
+                c_obstacle_ep.append(cord)
+            else:
+                free_space_a.append(anges)
+                free_space_ep.append(cord)
+        return c_obstacle_angle, c_obstacle_ep, work_space_angle, work_space_ep, free_space_a, free_space_ep
 
     def area_triangle(self, a, b, c):
         x1, y1 = a
@@ -147,28 +129,15 @@ class execise_8:
         d = ((x4-x1)**2 + (y4-y1)**2)**.5
         return a*b
 
-    def is_collision(self, x, y):
+    def is_collision(self, link):
         # print(self.obs_vect)
         for tri in self.obs_vect:
-            # print(tri)
-            vect = list(zip(tri[0], tri[1]))
-            if (len(vect) == 3):
-                # print(vect)
-                a, b, c = vect
-                area1 = self.area_triangle(a, b, c)
-                area2 = self.area_triangle(a, b, (x, y))
-                area3 = self.area_triangle(a, (x, y), c)
-                area4 = self.area_triangle((x, y), b, c)
-                if (area1 == area2 + area3 + area4):
-                    return True
-            elif (len(vect) == 4):
-                vect = list(zip(tri[0], tri[1]))
-                a, b, c, d = vect
-
-                if (x > a[0] and x < c[0]) and (y > a[1] and y < c[1]):
-                    return True
-                elif (x > c[0] and x < a[0]) and (y > c[1] and y < a[1]):
-                    return True
+            polygon = Polygon(tri)
+            path = LineString(link)
+            c_dis = path.intersects(polygon)
+            if c_dis:
+                # print("here")
+                return True
         return False
 
     def plot_c_points(self, points):

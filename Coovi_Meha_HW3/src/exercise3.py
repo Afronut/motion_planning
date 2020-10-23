@@ -9,7 +9,7 @@ class exercise3:
         self.start = start
         self.goal = goal
         self.fig = plt.figure()
-        self.step = .5
+        self.step = 1
 
     def meshgrid_obs(self):
         meshes = []
@@ -159,7 +159,6 @@ class exercise3:
                         temp_node = n_point
             node = temp_node
             t_dis += prev_dis
-            # print(t_dis)
 
             path.append(node)
             if node["id"] == goal["id"]:
@@ -168,9 +167,9 @@ class exercise3:
         final_path = []
         for p in path:
             final_path.append(p["point"])
-        # print(start, s_id)
+        print("Total path length is: ", t_dis)
         final_path = list(zip(*final_path))
-        return nodes, final_path
+        return nodes, final_path, t_dis
 
     def compute(self):
         return self.make_path()

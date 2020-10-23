@@ -1,5 +1,7 @@
 from src.exercise2 import exercise2
 from src.exercise3 import exercise3
+from src.exercise4 import exercise4
+
 import matplotlib.pyplot as plt
 import numpy as np
 from math import pi
@@ -14,7 +16,7 @@ def test_exo2_a():
     fig = plt.figure(1, figsize=plt.figaspect(2.))
     exo2 = exercise2(start, goal, center, length)
     obs = exo2.make_obs()
-    q, pot_fun, u_atts, u_reps = exo2.compute()
+    q, pot_fun, path = exo2.compute()
 
     ax = fig.add_subplot(2, 1, 1)
     ax.scatter([0, 10], [0, 0])
@@ -30,7 +32,7 @@ def test_exo2_a():
     for i in range(iters, len(q[0])-iters, iters):
         ax.plot([q[0][i], q[0][i+iters]], [q[1][i], q[1][i+iters]])
         plt.pause(0.01)
-
+    plt.title("Total path is : {}".format(path))
     # -------------------------------------------------------------- potential fieled
     # ----------------------------------------------------------------------
     x, y, z = exo2.potenfield_generator()
@@ -75,11 +77,13 @@ def test_exo2_b():
     length = 1
 
     exo2 = exercise2(start, goal, center, length, True)
-    q, pot_fun = exo2.compute()
-    iters = 10
-    for i in range(iters, len(q[0])-iters, iters):
-        ax.plot([q[0][i], q[0][i+iters]], [q[1][i], q[1][i+iters]])
-        plt.pause(0.01)
+    # q, pot_fun, path = exo2.compute()
+    # iters = 10
+    # for i in range(iters, len(q[0])-iters, iters):
+    #     ax.plot([q[0][i], q[0][i+iters]], [q[1][i], q[1][i+iters]])
+    #     plt.pause(0.01)
+    # plt.title("Total path is : {}".format(path))
+
     # ret = exo2.dis_to_obs([3, 3])
     # print(ret)
 
@@ -89,6 +93,7 @@ def test_exo2_b():
     color_map = plt.cm.get_cmap('jet_r')
     ax.plot_surface(X, Y, z,
                     cmap=color_map, edgecolor='none')
+                    
     plt.show()
 
 
@@ -109,26 +114,39 @@ def test_exo3():
         [(24,  -5), (25,  -5), (25,  1), (24,  1)],
         [(29,  0), (30,  0), (30,  5), (29,  5)]]
     start = [0, 0]
-    goal = [10, 10]
-    exo3 = exercise3(start, goal, w1)
-    nodes, path = exo3.compute()
+    goal = [35, 0]
+    exo3 = exercise3(start, goal, w2)
+    nodes, path, t_dis = exo3.compute()
     for node in nodes:
         point = node["point"]
         if node["id"] == -1:
-            plt.scatter(point[0], point[1], c="r")
+            plt.scatter(point[0], point[1], c="r", s=2)
         else:
-            plt.scatter(point[0], point[1], c="b")
+            plt.scatter(point[0], point[1], c="b", s=2)
         id_t = node["id"]
         label = "{}".format(id_t)
         plt.annotate(label,
                      point,
                      textcoords="offset points",
-                     xytext=(0, 5),
+                     xytext=(0, 2),
                      ha='center')
-    plt.plot(path[0], path[1], linewidth=4, c="black")
+    for i in range(0, len(w2)):
+        x, y = list(zip(*w2[i]))
+        x = list(x)
+        y = list(y)
+        x.append(x[0])
+        y.append(y[0])
+        plt.plot(x, y)
+    plt.plot(path[0], path[1], linewidth=3, c="black")
+    plt.title("Total path length is :{} units".format(t_dis))
     plt.show()
     # exo3.meshgrid_obs()
 
 
+def test_exo4():
+    exo4 = exercise4("a")
+    exo4.compute()
+
+
 if __name__ == "__main__":
-    test_exo3()
+    test_exo2_b()
