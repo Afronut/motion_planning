@@ -11,13 +11,15 @@ class exercise2(object):
     docstring
     """
 
-    def __init__(self, post, bonds, s_r, obs):
+    def __init__(self, post, bonds, s_r, obs, treshold=0.2):
         self.start, self.goal = post
         self.samples, self.radius = s_r
         self.s_id = None
         self.g_id = None
         self.obs = obs
         self.bonds = bonds
+        self.tresh = treshold
+        self.max_iter = 10000
 
     def min_max_cords(self):
         MAXs_x = []
@@ -67,19 +69,24 @@ class exercise2(object):
             return V, VV
         if nt:
             i = 0
+            count = 0
             while i <= self.samples:
+                # print(i)
+                if count > self.max_iter:
+                    print("This is taking too long. Stoping here!")
+                    break
                 x = round(uniform(min_x, max_x), 2)
                 y = round(uniform(min_y, max_y), 2)
                 xy = [x, y]
                 if self.sample_obs_free(x, y) and xy not in V and not self.too_close(V, xy):
                     V.append(xy)
-                    plt.scatter(xy[0], xy[1], c='b')
-                    plt.pause(0.005)
+                    # plt.scatter(xy[0], xy[1], c='b')
+                    # plt.pause(0.005)
                     G.add_node(i, pos=V[-1])
                     i += 1
                 elif not self.sample_obs_free(x, y):
                     VV.append((xy[:]))
-            i += 1
+                count += 1
             self.s_id = i
             i += 1
             self.g_id = i
@@ -104,13 +111,13 @@ class exercise2(object):
                 node = list(node.values())[0]
                 nd = Point(node[0], node[1])
                 dis = point.distance(nd)
-                if dis <= 0.4:
+                if dis <= self.tresh:
                     return True
         else:
             for node in nodes:
                 nd = Point(node[0], node[1])
                 dis = point.distance(nd)
-                if dis <= 0.4:
+                if dis <= self.tresh:
                     return True
         return False
 
@@ -144,28 +151,28 @@ class exercise2(object):
         edges_dict = []
         edges = []
         data = list(G.nodes.data("pos"))
-        pos = data[0]
+        pos = data[self.s_id]
         to_visit = [pos]
         visited = []
         while to_visit:
-            idx, node = to_visit.pop()
+            idx, node = to_visit.pop(0)
             visited.append(node)
-            circle = Point(node[0], node[1]).buffer(1+0.01)
+            circle = Point(node[0], node[1]).buffer(self.radius+0.01)
             nd = Point(node[0], node[1])
             for d in data:
                 idd, nod = d
                 point = Point(nod[0], nod[1])
                 edge = [node, nod]
-                if not circle.contains(point) or nod == node:
+                if not circle.contains(point) or nod == node or self.existed(edges, edge):
                     continue
 
-                elif not self.existed(edges, edge) or self.edge_obs_free(edge):
+                elif self.edge_obs_free(edge):
                     G.add_edge(idx, idd, weight=point.distance(nd))
                     # for v in V:
                     edges.append(edge)
                     f = list(zip(*edge))
-                    plt.plot(f[0], f[1], c="b", ls='--')
-                    plt.pause(0.0001)
+                    # plt.plot(f[0], f[1], c="b", ls='--')
+                    # plt.pause(0.0001)
                     ed = {
                         "pos": [idx, idd],
                         "edge": edge
@@ -174,6 +181,9 @@ class exercise2(object):
                     if nod not in to_visit and nod not in visited:
                         to_visit.append(d[:])
         return G, edges_dict
+
+    def smoothing(self):
+        pass
 
     def existed(self, edges, edge):
         if (edge in edges):
@@ -191,24 +201,24 @@ class exercise2(object):
                 return False
         return True
 
-    def compute(self):
+    def compute(self, G=None, edges=None):
         nodes = []
-        postions = []
-        xy = [[], []]
-        g = self.sample_workpace(True)
-        G, edges = self.construct_network_edge(g)
+        if not G:
+            g = self.sample_workpace(True)
+            G, edges = self.construct_network_edge(g)
         for ed in edges:
             x, y = ed['pos']
             line = ed['edge']
-            # print(line)
             if not self.edge_obs_free(line):
                 try:
                     g.remove_edge(x, y)
                 except:
                     pass
-        # nx.draw(G, nx.get_node_attributes(G, 'pos'),
-                # with_labels=False, node_size=2)
-        path = nx.shortest_path(G, self.s_id, self.g_id, "weight")
+        try:
+            path = nx.shortest_path(G, self.s_id, self.g_id, "weight")
+        except:
+            # print("No path found")
+            path = []
         paths = []
         node = G.nodes()
         edge = G.edges()
@@ -224,4 +234,11 @@ class exercise2(object):
         for p in path:
             paths.append(G.nodes[p]["pos"])
         # print(edges)
-        return edges, paths, nodes
+        dist = 0
+        if paths:
+            for i in range(0, len(paths)-1):
+                p1 = Point(paths[i][0], paths[i][1])
+                p2 = Point(paths[i+1][0], paths[i+1][1])
+                d = round(p2.distance(p1), 2)
+                dist += d
+        return edges, paths, nodes, dist
