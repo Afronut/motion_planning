@@ -1,7 +1,7 @@
 import heapq
 
 
-class exercise1(object):
+class exercise1():
     """
     docstring
     """
@@ -44,11 +44,9 @@ class exercise1(object):
 
     def neighbor_node(self, node):
         ret = []
-        heri_nod = 0
         for edge in self.e_w:
             if node[1] == edge[0][0]:
                 ret.append([edge[1], edge[0][1], node[2]+edge[1]])
-
         node = list(node)
         for i in range(0, len(ret)):
             for nod in self.v:

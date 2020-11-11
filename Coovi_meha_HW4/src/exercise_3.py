@@ -50,7 +50,6 @@ class exercise3():
                         p2 = Point(edge[1][0], edge[1][1])
                         G.add_edge(i, id_t, )
                         return G, free_nodes
-                    x, y = list(zip(*edge))
                     p1 = Point(edge[0][0], edge[0][1])
                     p2 = Point(edge[1][0], edge[1][1])
                     G.add_node(i, pos=edge[0])
@@ -70,7 +69,6 @@ class exercise3():
                 polygon = Polygon(ob)
                 d1 = G.nodes[ed[0]]['pos']
                 d2 = G.nodes[ed[1]]['pos']
-                # print(free_nodes)
                 try:
                     idx1 = free_nodes.index(d1)
                     idx2 = free_nodes.index(d2)
@@ -111,7 +109,6 @@ class exercise3():
             min_y, max_y = max_xy
 
         else:
-            # print(n_iter)
             L = self.eps
             h, k = self.goal
             min_xy, max_xy = [(h+0.5*L, h-0.5*L), (k + 0.5*L, k-0.5*L)]

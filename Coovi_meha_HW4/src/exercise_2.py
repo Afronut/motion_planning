@@ -1,12 +1,9 @@
-from random import randint, uniform
-from shapely.geometry import Polygon, Point, mapping, LineString
-import matplotlib.pyplot as plt
-import numpy as np
-import math
+from random import uniform
+from shapely.geometry import Polygon, Point, LineString
 import networkx as nx
 
 
-class exercise2(object):
+class exercise2():
     """
     docstring
     """
@@ -44,7 +41,6 @@ class exercise2(object):
             MINs_x.append(min_x)
             MAXs_y.append(max_y)
             MINs_y.append(min_y)
-
         return (min(MINs_x), min(MINs_y)), (max(MAXs_x), max(MAXs_y))
 
     def sample_workpace(self, nt=False):
@@ -140,7 +136,7 @@ class exercise2(object):
                 if not circle.contains(point) or nod == node:
                     continue
 
-                elif not self.existed(edges, edge) or self.edge_obs_free(edge):
+                if not self.existed(edges, edge) or self.edge_obs_free(edge):
 
                     edges.append(edge)
                     if nod not in to_visit and nod not in visited:
