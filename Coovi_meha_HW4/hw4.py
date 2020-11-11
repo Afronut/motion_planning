@@ -110,7 +110,7 @@ def test_exo2a(bench=False):
     plt.show()
 
 
-def test_exo2b(w, bench=False):
+def test_exo2b(w, n_r=None, bench=False):
     fig1 = plt.figure(1)
     w1 = [[(1,  1), (2,  1), (2,  5), (1,  5)],
           [(3,  4), (4,  4), (4,  12), (3,  12)],
@@ -141,23 +141,23 @@ def test_exo2b(w, bench=False):
 
         w = w2
     dist = 0
-    n = 200
-    r = 2
-    tr = 0
-    while not dist:
-        plt.close()
-        for ob in w:
-            xy = list(zip(*ob))
-            # print(xy)
-            xy[0] = list(xy[0])
-            xy[1] = list(xy[1])
-            xy[0].append(xy[0][0])
-            xy[1].append(xy[1][0])
-            plt.fill(xy[0], xy[1], c="r")
-        tr += 0.05
-        exo2 = exercise2([start, goal], bounds, [n, r], w, tr)
-        V, paths, nodes, dist = exo2.compute()
-
+    if not n_r:
+        n_r = [200, 1]
+    tr = n_r[1]-0.1
+    # while not dist:
+    #     plt.close()
+    for ob in w:
+        xy = list(zip(*ob))
+        # print(xy)
+        xy[0] = list(xy[0])
+        xy[1] = list(xy[1])
+        xy[0].append(xy[0][0])
+        xy[1].append(xy[1][0])
+        plt.fill(xy[0], xy[1], c="r")
+    # tr += 0.05
+    exo2 = exercise2([start, goal], bounds, n_r, w, tr)
+    V, paths, nodes, dist = exo2.compute()
+# plt.pause(0.0001)
     for node in nodes:
         plt.scatter(node[0], node[1], c="r")
         # plt.pause(0.01)
@@ -177,9 +177,36 @@ def test_exo2b(w, bench=False):
 
     if dist == 0:
         plt.title(
-            "No path for option {} run {}. Sampled points too sparse".format(n, r))
+            "No path for option {} run {}. Sampled points too sparse".format(n_r[0], n_r[1]))
     else:
-        plt.title("n= 200, r=1. path length is : {}".format(round(dist, 2)))
+        plt.title("n= {}, r={}. path length is : {}".format(n_r[0], n_r[1], round(dist, 2)))
+    fig = plt.figure(2)
+    dists = []
+    t_totals = []
+    for i in range(0, 3):
+        dd = []
+        tt = []
+        tic = time.perf_counter()
+        tr = 0
+        exo2 = exercise2([start, goal], bounds, n_r, w, tr)
+        g = exo2.sample_workpace(True)
+        g, edges = exo2.construct_network_edge(g)
+        for k in range(0, 100):
+            V, paths, nodes, dist = exo2.compute(g, edges)
+            dd.append(dist)
+            toc = time.perf_counter()
+            tt.append(toc-tic)
+        dists.append(dd)
+        t_totals.append(tt)
+    fig.add_subplot(121)
+    plt.title("Path length for {}".format(n_r))
+    # for dis in dists:
+    plt.boxplot(dists)
+    fig.add_subplot(122)
+    plt.title("Time taken")
+    # for t in t_totals:
+    plt.boxplot(t_totals)
+    # plt.pause(0.0001)
 
     def benchmark():
         n_r = [(200, 1), (200, 2), (500, 1), (500, 2), (1000, 1), (1000, 2)]
@@ -196,23 +223,16 @@ def test_exo2b(w, bench=False):
                 dd = []
                 tt = []
                 tic = time.perf_counter()
-                tr = 0
-                dist = 0
-                while not dist:
-                    tr += 0.05
-                    exo2 = exercise2([start, goal], bonds, n_r[j], w, tr)
-                    g = exo2.sample_workpace(True)
-                    g, edges = exo2.construct_network_edge(g)
-                    for k in range(0, 100):
-                        V, paths, nodes, dist = exo2.compute(g, edges)
-                        if not dist:
-                            k = 0
-                            dd.clear()
-                            break
-                        dd.append(dist)
-                        toc = time.perf_counter()
-                        tt.append(toc-tic)
-                    dists.append(dd)
+                tr = 0.2
+                exo2 = exercise2([start, goal], bounds, n_r[j], w, tr)
+                g = exo2.sample_workpace(True)
+                g, edges = exo2.construct_network_edge(g)
+                for k in range(0, 100):
+                    V, paths, nodes, dist = exo2.compute(g, edges)
+                    dd.append(dist)
+                    toc = time.perf_counter()
+                    tt.append(toc-tic)
+                dists.append(dd)
                 t_totals.append(tt)
             figs[-1].add_subplot(121)
             plt.title("Path length")
@@ -223,6 +243,7 @@ def test_exo2b(w, bench=False):
             # for t in t_totals:
             plt.boxplot(t_totals)
             figs.append(figt)
+            # plt.pause(0.0001)
     if(bench):
         benchmark()
     print("Done")
@@ -275,7 +296,7 @@ def test_exo3(w, bench=False):
     p = 5
     eps = 0.25
     exo3 = exercise3([start, goal], bounds, [n, r], w, [p, eps])
-    dist, nodes,V, paths = exo3.compute()
+    dist, nodes, V, paths = exo3.compute()
     # plt.close()
     # nx.draw(G, nx.get_node_attributes(G, 'pos'),
     #         with_labels=False, node_size=2)
@@ -348,7 +369,14 @@ if __name__ == "__main__":
             if ip == 'yes':
                 test_exo2b(w, True)
             else:
-                test_exo2b(w)
+                n_r = input("Do you wanna provice n and r? yes/no")
+                if (n_r == 'yes'):
+                    n_r = input("provide it as n,r ")
+                    n_r = [float(s) for s in n_r.split(',')]
+                    print(n_r)
+                    test_exo2b(w, n_r=n_r)
+                else:
+                    test_exo2b(w)
     elif inp == 3:
         ip = input("Do you wanna run benchmark? yes/no :")
         w = input("Which workspace? w1 or w2 : ")
