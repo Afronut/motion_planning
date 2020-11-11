@@ -7,6 +7,7 @@ import math
 import numpy as np
 
 
+
 class execise_5:
     def __init__(self, robot_vect, obs_vect):
         self.robot_vect = robot_vect
@@ -104,4 +105,5 @@ class execise_5:
             # print(degree)
             C_obs[i] = np.append(np.radians(degree), C_obs[i])
             C_obs[i] = tuple(C_obs[i])
+        # print(C_obs[1])
         return C_obs
