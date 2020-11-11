@@ -36,6 +36,9 @@ def exercise5():
         ax.set_ylim([-4, 4])
         ax.set_xlim([-4, 6])
         ax.set_zlim([-3, 2])
+        ax.set_xlabel("Angle -pi to pi")
+        ax.set_ylabel("y")
+        ax.set_zlabel("z")
         plt.pause(0.05)
         angle += 1
     print("done!")

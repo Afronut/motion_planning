@@ -16,7 +16,7 @@ class execise_8:
     def compute(self):
         start = time.clock()
         fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
+        ax = fig.add_subplot(111)
         img = []
         links_coordinate = []
         c_obs = []
@@ -31,8 +31,7 @@ class execise_8:
                              [j for i, j in c_obs]]
                     theta1 = i * np.ones(len(c_obs[0]))
                     theta2 = np.linspace(0, self.max_theta2, len(c_obs[0]))
-                    img = ax.scatter(c_obs[0],  c_obs[1], theta1,
-                                     c=theta2, cmap=plt.hot())
+                    img = ax.scatter( theta1, theta2, c='b')
 
                     # plt.pause(0.001)
         fig.colorbar(img)
