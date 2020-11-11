@@ -19,7 +19,7 @@ class exercise2(object):
         self.obs = obs
         self.bonds = bonds
         self.tresh = treshold
-        self.max_iter = 10000
+        self.max_iter = 100000
 
     def min_max_cords(self):
         MAXs_x = []
@@ -73,8 +73,7 @@ class exercise2(object):
             while i <= self.samples:
                 # print(i)
                 if count > self.max_iter:
-                    print("This is taking too long. Stoping here!")
-                    break
+                    self.tresh=0
                 x = round(uniform(min_x, max_x), 2)
                 y = round(uniform(min_y, max_y), 2)
                 xy = [x, y]
@@ -131,7 +130,7 @@ class exercise2(object):
         while to_visit:
             node = to_visit.pop()
             visited.append(node)
-            circle = Point(node[0], node[1]).buffer(1+0.01)
+            circle = Point(node[0], node[1]).buffer(self.radius+0.01)
 
             for nod in free_nodes:
                 point = Point(nod[0], nod[1])
@@ -154,10 +153,11 @@ class exercise2(object):
         pos = data[self.s_id]
         to_visit = [pos]
         visited = []
+        i=0
         while to_visit:
             idx, node = to_visit.pop(0)
             visited.append(node)
-            circle = Point(node[0], node[1]).buffer(self.radius+0.01)
+            circle = Point(node[0], node[1]).buffer(self.radius+0.1)
             nd = Point(node[0], node[1])
             for d in data:
                 idd, nod = d
@@ -180,10 +180,27 @@ class exercise2(object):
                     edges_dict.append(ed)
                     if nod not in to_visit and nod not in visited:
                         to_visit.append(d[:])
+            i+=1
         return G, edges_dict
 
-    def smoothing(self):
-        pass
+    def smoothing(self, path):
+        sm_path = []
+        for i in range(0, len(path)-1):
+            x1, y1 = path[i]
+            x2, y2 = path[i+2]
+            min_x,  max_x = [x1, x2].sort()
+            min_y, max_y = [y1, y2].sort()
+            sm_path.append(path[i])
+            j = 0
+            while j < 100:
+                x = round(uniform(min_x, max_x), 2)
+                y = round(uniform(min_y, max_y), 2)
+                xy = [x, y]
+                if self.sample_obs_free(x, y):
+                    sm_path.append(xy)
+                    j += 1
+            sm_path.append(path[i+1])
+        return sm_path
 
     def existed(self, edges, edge):
         if (edge in edges):
