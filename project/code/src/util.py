@@ -1,24 +1,28 @@
+from . import obs, const
 import networkx as nx
 from shapely.geometry import Polygon, Point, mapping, LineString
 from random import randint, uniform
-from operator import itemgetter
 import numpy as np
 import matplotlib.pyplot as plt
 
 
-class exercise3():
-    """
-    docstring
-    """
-
-    def __init__(self, post, bonds, s_r, obs, p_eps):
+class utils:
+    def __init__(self, paths):
         self.s_id = None
         self.g_id = None
-        self.start, self.goal = post
-        self.max_iter, self.step = s_r
+        self.start = None
+        self.goal = None
+        self.max_iter, self.step = [10000, 0.5]
         self.obs = obs
-        self.bonds = bonds
-        self.probability, self.eps = p_eps
+        self.bonds = [[-1, 13], [-1, 13]]
+        self.probability, self.eps = [5, 0.25]
+        self.paths = paths
+
+    def set_pointions(self, pos):
+        self.start, self.goal = pos
+
+    def rrt(self):
+        pass
 
     def rrt_goalBias(self):
         nodes = []
@@ -27,7 +31,7 @@ class exercise3():
         G.add_node(0, pos=self.start)
         self.s_id = 0
         free_nodes = []
-        all_nodes=[]
+        all_nodes = []
         count = 0
         free_nodes.append(self.start)
         i = 1
@@ -60,7 +64,6 @@ class exercise3():
                 all_nodes.append(point)
             count += 1
         return G, free_nodes, all_nodes
-
 
     def unfreeze(self, G, free_nodes):
         d = list(G.edges)
@@ -128,14 +131,30 @@ class exercise3():
             return True
         return False
 
-    def is_connectable(self, edge):
-
+    def is_obstacle_free(self, edge):
         line = LineString(edge)
         for tri in self.obs:
             polygon = Polygon(tri)
             if line.intersects(polygon):
                 return False
         return True
+
+    def is_colison(self, edge):
+        edge_line = LineString(edge)
+        if not self.paths:
+            return True
+        for path in self.paths:
+            path = [tuple(pt) for pt in path]
+            path_line = LineString(path)
+            if edge_line.intersects(path_line):
+                return False
+            # print(path)
+        return True
+
+    def is_connectable(self, edge):
+        if self.is_obstacle_free(edge) and self.is_colison(edge):
+            return True
+        return False
 
     def add_edge(self, nodes, point):
         distances = []
@@ -162,13 +181,18 @@ class exercise3():
         edge = [inter, node]
         return edge, inter
 
-    def compute(self, G=None):
-        all_nodes=[]
+    def get_rrt_path(self, G=None):
+        all_nodes = []
         if not G:
             circle = Point(self.goal[0], self.goal[1]).buffer(self.eps)
             xy = list(circle.exterior.coords)
             x, y = list(zip(*xy))
             plt.fill(x, y, c='m')
+
+            circle = Point(self.start[0], self.start[1]).buffer(self.eps)
+            xy = list(circle.exterior.coords)
+            x, y = list(zip(*xy))
+            plt.fill(x, y, c='blue')
             G,  all_nodes = self.rrt_goalBias()
         try:
             path = nx.shortest_path(G, self.s_id, self.g_id, "weight")
@@ -188,7 +212,7 @@ class exercise3():
         node = G.nodes()
         edge = G.edges()
         edges = []
-        nodes=[]
+        nodes = []
         for n in node:
             ed = G.nodes[n]["pos"]
             nodes.append(ed)
@@ -196,4 +220,10 @@ class exercise3():
             x, y = e
             ed = [G.nodes[x]["pos"], G.nodes[y]["pos"]]
             edges.append(ed)
-        return dist, all_nodes, edges, paths
+        return paths
+
+    def prm(self):
+        pass
+
+    def gradient_decent(self):
+        pass
