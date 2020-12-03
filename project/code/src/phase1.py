@@ -68,6 +68,7 @@ def path():
         ut.set_pointions(p)
         pa = ut.get_rrt_path()
         if (p[1] in pa):
+            print("Path found for :", p)
             paths.append(pa)
     show_motion(paths)
     # print(paths)

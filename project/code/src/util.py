@@ -12,8 +12,8 @@ class utils:
         self.g_id = None
         self.start = None
         self.goal = None
-        self.width = 0.3
-        self.max_iter, self.step = [100000, 0.2]
+        self.width = 0.2
+        self.max_iter, self.step = [10000, 0.3]
         self.obs = obs
         self.bonds = [[-1, 13], [-1, 13]]
         self.probability, self.eps = [5, 0.25]
