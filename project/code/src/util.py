@@ -12,7 +12,8 @@ class utils:
         self.g_id = None
         self.start = None
         self.goal = None
-        self.max_iter, self.step = [10000, 0.5]
+        self.width = 0.3
+        self.max_iter, self.step = [100000, 0.2]
         self.obs = obs
         self.bonds = [[-1, 13], [-1, 13]]
         self.probability, self.eps = [5, 0.25]
@@ -53,7 +54,7 @@ class utils:
                         p1 = Point(self.goal[0], self.goal[1])
                         p2 = Point(edge[1][0], edge[1][1])
                         G.add_edge(i, id_t, )
-                        return G, free_nodes
+                        return G, free_nodes, all_nodes
                     p1 = Point(edge[0][0], edge[0][1])
                     p2 = Point(edge[1][0], edge[1][1])
                     G.add_node(i, pos=edge[0])
@@ -132,7 +133,7 @@ class utils:
         return False
 
     def is_obstacle_free(self, edge):
-        line = LineString(edge)
+        line = LineString(edge).buffer(self.width)
         for tri in self.obs:
             polygon = Polygon(tri)
             if line.intersects(polygon):
@@ -140,12 +141,12 @@ class utils:
         return True
 
     def is_colison(self, edge):
-        edge_line = LineString(edge)
+        edge_line = LineString(edge).buffer(self.width)
         if not self.paths:
             return True
         for path in self.paths:
             path = [tuple(pt) for pt in path]
-            path_line = LineString(path)
+            path_line = LineString(path).buffer(self.width)
             if edge_line.intersects(path_line):
                 return False
             # print(path)
@@ -193,7 +194,7 @@ class utils:
             xy = list(circle.exterior.coords)
             x, y = list(zip(*xy))
             plt.fill(x, y, c='blue')
-            G,  all_nodes = self.rrt_goalBias()
+            G, free_nodes, all_nodes = self.rrt_goalBias()
         try:
             path = nx.shortest_path(G, self.s_id, self.g_id, "weight")
         except:
