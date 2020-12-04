@@ -12,8 +12,8 @@ class utils:
         self.g_id = None
         self.start = None
         self.goal = None
-        self.width = 0.2
-        self.max_iter, self.step = [10000, 0.3]
+        self.width = 0.4
+        self.max_iter, self.step = [100000, 0.2]
         self.obs = obs
         self.bonds = [[-1, 13], [-1, 13]]
         self.probability, self.eps = [5, 0.25]
@@ -128,7 +128,7 @@ class utils:
         p1 = Point(edge[0][0], edge[0][1])
         p2 = Point(edge[1][0], edge[1][1])
         dist = p1.distance(p2)
-        if dist < 0.2:
+        if dist < 0.05:
             return True
         return False
 
@@ -185,15 +185,6 @@ class utils:
     def get_rrt_path(self, G=None):
         all_nodes = []
         if not G:
-            circle = Point(self.goal[0], self.goal[1]).buffer(self.eps)
-            xy = list(circle.exterior.coords)
-            x, y = list(zip(*xy))
-            plt.fill(x, y, c='m')
-
-            circle = Point(self.start[0], self.start[1]).buffer(self.eps)
-            xy = list(circle.exterior.coords)
-            x, y = list(zip(*xy))
-            plt.fill(x, y, c='blue')
             G, free_nodes, all_nodes = self.rrt_goalBias()
         try:
             path = nx.shortest_path(G, self.s_id, self.g_id, "weight")
@@ -222,6 +213,8 @@ class utils:
             ed = [G.nodes[x]["pos"], G.nodes[y]["pos"]]
             edges.append(ed)
         return paths
+
+
 
     def prm(self):
         pass
