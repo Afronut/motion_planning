@@ -1,4 +1,4 @@
-from . import obs, const
+from . import obs, const, get_bond
 import networkx as nx
 from shapely.geometry import Polygon, Point, mapping, LineString
 from random import randint, uniform
@@ -7,20 +7,24 @@ import matplotlib.pyplot as plt
 
 
 class utils:
-    def __init__(self, paths):
+    def __init__(self, plot_tree, speed=False):
         self.s_id = None
         self.g_id = None
         self.start = None
         self.goal = None
-        self.width = 0.4
-        self.max_iter, self.step = [100000, 0.2]
+        self.width = 0.3
+        self.max_iter, self.step = [10000000, 0.4]
         self.obs = obs
-        self.bonds = [[-1, 13], [-1, 13]]
+        self.bonds = get_bond()
         self.probability, self.eps = [5, 0.25]
-        self.paths = paths
+        self.paths = None
+        self.plot_tree = plot_tree
 
     def set_pointions(self, pos):
         self.start, self.goal = pos
+
+    def set_path(self, path):
+        self.paths = path
 
     def rrt(self):
         pass
@@ -41,27 +45,28 @@ class utils:
             nodes.append(point)
             edge, point = self.add_edge(free_nodes, point)
             if self.is_connectable(edge):
-                if self.too_close(edge) and i > 5:
-                    # G, free_nodes=self.unfreeze(G, free_nodes)
-                    pass
-                else:
-                    id_t = self.get_node_id(G, edge[1])
-                    circle = Point(self.goal[0], self.goal[1]).buffer(self.eps)
-                    p = Point(point[0], point[1])
-                    if circle.contains(p):
-                        self.g_id = i
-                        G.add_node(i, pos=self.goal)
-                        p1 = Point(self.goal[0], self.goal[1])
-                        p2 = Point(edge[1][0], edge[1][1])
-                        G.add_edge(i, id_t, )
-                        return G, free_nodes, all_nodes
-                    p1 = Point(edge[0][0], edge[0][1])
+                id_t = self.get_node_id(G, edge[1])
+                circle = Point(self.goal[0], self.goal[1]).buffer(self.eps)
+                p = Point(point[0], point[1])
+                if circle.contains(p):
+                    self.g_id = i
+                    G.add_node(i, pos=self.goal)
+                    p1 = Point(self.goal[0], self.goal[1])
                     p2 = Point(edge[1][0], edge[1][1])
-                    G.add_node(i, pos=edge[0])
-                    G.add_node(id_t, pos=edge[1])
-                    G.add_edge(i, id_t, weight=p1.distance(p2))
-                    free_nodes.append(point)
-                    i += 1
+                    G.add_edge(i, id_t, )
+                    return G, free_nodes, all_nodes
+                p1 = Point(edge[0][0], edge[0][1])
+                p2 = Point(edge[1][0], edge[1][1])
+                G.add_node(i, pos=edge[0])
+                G.add_node(id_t, pos=edge[1])
+                G.add_edge(i, id_t, weight=p1.distance(p2))
+                if self.plot_tree:
+                    plt.scatter(point[0], point[1], s=5, c="y")
+                    x, y = list(zip(*edge))
+                    plt.plot(x, y, c="y")
+                    plt.pause(0.001)
+                free_nodes.append(point)
+                i += 1
                 all_nodes.append(point)
             count += 1
         return G, free_nodes, all_nodes
@@ -108,7 +113,12 @@ class utils:
 
     def sample_point(self, n_iter):
         n_iter = n_iter
-        if n_iter % (100-self.probability):
+        min_x = 0
+        max_x = 0
+        min_y = 0
+        max_y = 0
+        # print(n_iter % (100-self.probability))
+        if n_iter % (100-self.probability) != 0:
             min_xy, max_xy = self.bonds
             min_x,  max_x = min_xy
             min_y, max_y = max_xy
@@ -116,11 +126,12 @@ class utils:
         else:
             L = self.eps
             h, k = self.goal
-            min_xy, max_xy = [(h+0.5*L, h-0.5*L), (k + 0.5*L, k-0.5*L)]
+            min_xy, max_xy = [(h-0.5*L, h+0.5*L), (k - 0.5*L, k+0.5*L)]
             min_x,  max_x = min_xy
             min_y, max_y = max_xy
         x = round(uniform(min_x, max_x), 2)
         y = round(uniform(min_y, max_y), 2)
+
         xy = [x, y]
         return xy
 
@@ -128,7 +139,7 @@ class utils:
         p1 = Point(edge[0][0], edge[0][1])
         p2 = Point(edge[1][0], edge[1][1])
         dist = p1.distance(p2)
-        if dist < 0.05:
+        if dist < self.step-self.step/2:
             return True
         return False
 
@@ -213,8 +224,6 @@ class utils:
             ed = [G.nodes[x]["pos"], G.nodes[y]["pos"]]
             edges.append(ed)
         return paths
-
-
 
     def prm(self):
         pass

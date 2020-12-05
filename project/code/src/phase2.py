@@ -1,5 +1,5 @@
 from . import util as utils
-from . import pack_points, obs
+from . import pack_points, obs, get_bond
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy
@@ -21,7 +21,7 @@ def plot_obs():
         xy[1] = list(xy[1])
         xy[0].append(xy[0][0])
         xy[1].append(xy[1][0])
-        plt.fill(xy[0], xy[1], c="r")
+        plt.fill(xy[0], xy[1], c="black")
 
 
 def plot_path(path):
@@ -33,7 +33,7 @@ def plot_path(path):
 
 def get_angle(paths):
     robots = []
-    L = 0.4
+    L = 0.3
     for path in paths:
         rots = []
         h, k = path[1]
@@ -51,12 +51,11 @@ def get_angle(paths):
             dot_product = np.dot(unit_vector_1, unit_vector_2)
             ang = -np.arccos(dot_product)
 
-            if path[i][0] <path[i + 1][0]:
+            if path[i][0] < path[i + 1][0]:
                 ang = -ang
 
             # if ang > pi/4:
             # #     ang = pi/2 - ang
-            print(np.degrees(ang))
             rot = dot(ar(robot)-ar(path[i]), ar([[cos(ang), sin(ang)],
                                                  [-sin(ang), cos(ang)]])) + path[i]
             rots.append(rot)
@@ -77,7 +76,7 @@ def plot_Rmotion(robot):
     xy[1] = list(xy[1])
     xy[0].append(xy[0][0])
     xy[1].append(xy[1][0])
-    plt.scatter(xy[0], xy[1], c="y")
+    plt.scatter(xy[0], xy[1], c="black", s=5)
     plt.plot(xy[0][1:3], xy[1][1:3], c="r")
     # plt.pause(0.01)
     # plt.scatter(h, (k - 0.5 * L - 0.5), c='r')
@@ -110,17 +109,14 @@ def show_Rmotion(paths):
 def path():
     pack = pack_points()
     paths = []
-    # plot_obs()
+    ut = utils.utils(False)
     for p in pack:
-        ut = utils.utils(paths)
+        ut.set_path(paths)
         ut.set_pointions(p)
         pa = ut.get_rrt_path()
         if (p[1] in pa):
             print("Path found for :", p)
             paths.append(pa)
-
+    # plot_obs()
     show_Rmotion(paths)
-    # show_motion(paths)
-    # get_angle(paths)
-    # print(paths)
     plt.show()
