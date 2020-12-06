@@ -22,8 +22,8 @@ for ob in obs:
 def pack_points():
     pack = []
     for elem in const:
-        x1, y1, x2, y2 = elem
-        pack.append([[x1, y1], [x2, y2]])
+        x1, y1, x2, y2, v = elem
+        pack.append([[x1, y1], [x2, y2], v])
     return pack
 
 
@@ -34,9 +34,12 @@ def get_bond():
         x, y = list(zip(*ob))
         X += list(x)
         Y += list(y)
-    pack = pack_points()
+    pack = []
+    for elem in const:
+        x1, y1, x2, y2, v = elem
+        pack.append([[x1, y1], [x2, y2]])
     for elem in pack:
-        x, y = list(zip(*elem))
+        x, y= list(zip(*elem))
         # print(x)
         X += list(x)
         Y += list(y)

@@ -12,8 +12,17 @@ cos = scipy.cos
 ar = scipy.array
 
 
+def plot_set_points():
+    pack = pack_points()
+    for p in pack:
+        X, Y, V = p
+        plt.scatter(X[0], X[1], c='g')
+        plt.scatter(Y[0], Y[1], c='r')
+
+
 def plot_obs():
     # print(obs)
+    plot_set_points()
     for ob in obs:
         xy = list(zip(*ob))
         # print(xy)
@@ -100,7 +109,7 @@ def show_Rmotion(paths):
             except:
                 plot_Rmotion(robots[i][-1])
                 cond[i] = True
-        plt.pause(.1)
+        plt.pause(.01)
         if all(cond):
             break
         count += 1
@@ -109,8 +118,11 @@ def show_Rmotion(paths):
 def path():
     pack = pack_points()
     paths = []
-    ut = utils.utils(False)
+    ut = utils.utils(True)
     for p in pack:
+        plt.clf()
+        plot_set_points()
+        plot_obs()
         ut.set_path(paths)
         ut.set_pointions(p)
         pa = ut.get_rrt_path()

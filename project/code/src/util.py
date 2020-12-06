@@ -12,8 +12,9 @@ class utils:
         self.g_id = None
         self.start = None
         self.goal = None
+        self.speed = None
         self.width = 0.3
-        self.max_iter, self.step = [10000000, 0.4]
+        self.max_iter, self.step = [100000, 0.5]
         self.obs = obs
         self.bonds = get_bond()
         self.probability, self.eps = [5, 0.25]
@@ -21,7 +22,7 @@ class utils:
         self.plot_tree = plot_tree
 
     def set_pointions(self, pos):
-        self.start, self.goal = pos
+        self.start, self.goal, self.v = pos
 
     def set_path(self, path):
         self.paths = path
@@ -30,9 +31,7 @@ class utils:
         pass
 
     def rrt_goalBias(self):
-        nodes = []
         G = nx.Graph()
-        nodes.append(self.start)
         G.add_node(0, pos=self.start)
         self.s_id = 0
         free_nodes = []
@@ -42,7 +41,6 @@ class utils:
         i = 1
         while count < self.max_iter:
             point = self.sample_point(count)
-            nodes.append(point)
             edge, point = self.add_edge(free_nodes, point)
             if self.is_connectable(edge):
                 id_t = self.get_node_id(G, edge[1])
@@ -168,18 +166,41 @@ class utils:
             return True
         return False
 
+    def close_obstacle(self, node, point):
+        sm = Point(point[0], point[1])
+        goal = Point(self.goal[0], self.goal[1])
+        dis_sam = goal.distance(sm)
+        if dis_sam > self.eps:
+            return False
+        line_p1_goal = LineString([tuple(node), tuple(point)])
+        circle = Point(node[0], node[1]).buffer(self.step)
+        inter = circle.intersection(line_p1_goal)
+        if inter:
+            inter = list(inter.coords)
+            inter = list(inter[1])
+            inter[0] = round(inter[0], 1)
+            inter[1] = round(inter[1], 1)
+        else:
+            inter = point
+
+        edge = [inter, node]
+        if self.is_connectable(edge):
+            return False
+        return True
+
     def add_edge(self, nodes, point):
         distances = []
         for node in nodes:
             p1 = Point(node[0], node[1])
             p2 = Point(point[0], point[1])
-            distances.append(p1.distance(p2))
+            if not self.close_obstacle(node, point):
+                distances.append(p1.distance(p2))
+            else:
+                distances.append(float("inf"))
         idx = np.argmin(distances)
         node = nodes[idx]
-        x, y = list(zip(*[point, node]))
         line = LineString([tuple(node), tuple(point)])
         circle = Point(node[0], node[1]).buffer(self.step)
-
         inter = circle.intersection(line)
         if inter:
             inter = list(inter.coords)
@@ -188,8 +209,6 @@ class utils:
             inter[1] = round(inter[1], 1)
         else:
             inter = point
-        if isinstance(inter[0], tuple):
-            pass
         edge = [inter, node]
         return edge, inter
 
