@@ -12,7 +12,7 @@ class utils:
         self.g_id = None
         self.start = None
         self.goal = None
-        self.speed = None
+        self.speed = speed
         self.width = 0.3
         self.max_iter, self.step = [100000, 0.5]
         self.obs = obs
@@ -20,6 +20,7 @@ class utils:
         self.probability, self.eps = [5, 0.25]
         self.paths = None
         self.plot_tree = plot_tree
+        self.v = None
 
     def set_pointions(self, pos):
         self.start, self.goal, self.v = pos
@@ -35,14 +36,20 @@ class utils:
         G.add_node(0, pos=self.start)
         self.s_id = 0
         free_nodes = []
-        all_nodes = []
+        time_nodes = [[self.start, 0]]
         count = 0
         free_nodes.append(self.start)
         i = 1
         while count < self.max_iter:
             point = self.sample_point(count)
-            edge, point = self.add_edge(free_nodes, point)
-            if self.is_connectable(edge):
+            edge, point, time_node = self.add_edge(
+                free_nodes, point, time_nodes)
+            is_connectable = False
+            if self.speed:
+                is_connectable = self.is_timed_free(edge, time_node)
+            else:
+                is_connectable = self.is_connectable(edge)
+            if is_connectable:
                 id_t = self.get_node_id(G, edge[1])
                 circle = Point(self.goal[0], self.goal[1]).buffer(self.eps)
                 p = Point(point[0], point[1])
@@ -52,7 +59,7 @@ class utils:
                     p1 = Point(self.goal[0], self.goal[1])
                     p2 = Point(edge[1][0], edge[1][1])
                     G.add_edge(i, id_t, )
-                    return G, free_nodes, all_nodes
+                    return G, free_nodes, time_nodes
                 p1 = Point(edge[0][0], edge[0][1])
                 p2 = Point(edge[1][0], edge[1][1])
                 G.add_node(i, pos=edge[0])
@@ -65,9 +72,9 @@ class utils:
                     plt.pause(0.001)
                 free_nodes.append(point)
                 i += 1
-                all_nodes.append(point)
+                time_nodes.append(time_node)
             count += 1
-        return G, free_nodes, all_nodes
+        return G, free_nodes, time_nodes
 
     def unfreeze(self, G, free_nodes):
         d = list(G.edges)
@@ -188,17 +195,39 @@ class utils:
             return False
         return True
 
-    def add_edge(self, nodes, point):
+    def is_timed_free(self, edge, t_node):
+        if not self.is_obstacle_free(edge):
+            return False
+        edge_line = LineString(edge).buffer(self.width)
+        t = 0
+        t_time = round(t_node[1], 2)
+        for path in self.paths:
+            t = 0
+            for i, p in enumerate(path):
+                if i == len(path)-1:
+                    break
+                line = LineString([p, path[i + 1]]).buffer(self.width)
+                p1 = Point(p[0], p[1])
+                p2 = Point(path[i+1][0], path[i+1][1])
+                dist = p1.distance(p2)
+                t += round(self.v/dist, 2)
+                if edge_line.intersects(line) and t == t_time:
+                    return False
+        return True
+
+    def add_edge(self, nodes, point, time_nodes):
         distances = []
+        time_node = []
         for node in nodes:
             p1 = Point(node[0], node[1])
             p2 = Point(point[0], point[1])
-            if not self.close_obstacle(node, point):
-                distances.append(p1.distance(p2))
-            else:
-                distances.append(float("inf"))
+            # if not self.close_obstacle(nodes[i], point) and self.is_timed_free(time_nodes[i], point):
+            distances.append(p1.distance(p2))
+            # else:
+            #     distances.append(float("inf"))
         idx = np.argmin(distances)
         node = nodes[idx]
+        t_node = time_nodes[idx]
         line = LineString([tuple(node), tuple(point)])
         circle = Point(node[0], node[1]).buffer(self.step)
         inter = circle.intersection(line)
@@ -209,13 +238,18 @@ class utils:
             inter[1] = round(inter[1], 1)
         else:
             inter = point
+        p1 = Point(inter[0], inter[1])
+        p2 = Point(node[0], node[1])
+        dist = p1.distance(p2)
         edge = [inter, node]
-        return edge, inter
+        time_node.append(inter)
+        time_node.append(round(dist/self.v+t_node[1], 2))
+        return edge, inter, time_node
 
     def get_rrt_path(self, G=None):
         all_nodes = []
         if not G:
-            G, free_nodes, all_nodes = self.rrt_goalBias()
+            G, free_nodes, time_nodes = self.rrt_goalBias()
         try:
             path = nx.shortest_path(G, self.s_id, self.g_id, "weight")
         except:
@@ -235,6 +269,7 @@ class utils:
         edge = G.edges()
         edges = []
         nodes = []
+        time_paths = []
         for n in node:
             ed = G.nodes[n]["pos"]
             nodes.append(ed)
@@ -242,7 +277,7 @@ class utils:
             x, y = e
             ed = [G.nodes[x]["pos"], G.nodes[y]["pos"]]
             edges.append(ed)
-        return paths
+        return paths, time_nodes
 
     def prm(self):
         pass

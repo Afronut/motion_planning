@@ -118,15 +118,17 @@ def show_Rmotion(paths):
 def path():
     pack = pack_points()
     paths = []
-    ut = utils.utils(True)
+    ut = utils.utils(False)
     for p in pack:
-        plt.clf()
-        plot_set_points()
-        plot_obs()
+        # plt.clf()
+        # plot_set_points()
+        # plot_obs()
         ut.set_path(paths)
         ut.set_pointions(p)
-        pa = ut.get_rrt_path()
+        pa, time_nodes = ut.get_rrt_path()
+        print(time_nodes)
         if (p[1] in pa):
+            print(pa)
             print("Path found for :", p)
             paths.append(pa)
     # plot_obs()

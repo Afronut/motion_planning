@@ -12,8 +12,17 @@ cos = scipy.cos
 ar = scipy.array
 
 
+def plot_set_points():
+    pack = pack_points()
+    for p in pack:
+        X, Y, V = p
+        plt.scatter(X[0], X[1], c='g')
+        plt.scatter(Y[0], Y[1], c='r')
+
+
 def plot_obs():
     # print(obs)
+    plot_set_points()
     for ob in obs:
         xy = list(zip(*ob))
         # print(xy)
@@ -28,19 +37,9 @@ def plot_path(path):
     if path:
         x, y = list(zip(*path))
         for i in range(0, len(x)-1):
-            plt.plot([x[i], x[i+1]], [y[i], y[i+1]], lw=1, c="g")
+            plt.plot([x[i], x[i+1]], [y[i], y[i+1]], lw=1, c="y")
 
 
-# def plot_set_points():
-#     circle = Point(self.goal[0], self.goal[1]).buffer(self.eps)
-#     xy = list(circle.exterior.coords)
-#     x, y = list(zip(*xy))
-#     plt.fill(x, y, c='m')
-
-#     circle = Point(self.start[0], self.start[1]).buffer(self.eps)
-#     xy = list(circle.exterior.coords)
-#     x, y = list(zip(*xy))
-#     plt.fill(x, y, c='blue')
 def get_angle(paths):
     robots = []
     L = 0.4
@@ -60,9 +59,12 @@ def get_angle(paths):
             unit_vector_2 = vect2 / np.linalg.norm(vect2)
             dot_product = np.dot(unit_vector_1, unit_vector_2)
             ang = -np.arccos(dot_product)
+
+            if path[i][0] < path[i + 1][0]:
+                ang = -ang
+
             # if ang > pi/4:
             # #     ang = pi/2 - ang
-            print(np.degrees(ang))
             rot = dot(ar(robot)-ar(path[i]), ar([[cos(ang), sin(ang)],
                                                  [-sin(ang), cos(ang)]])) + path[i]
             rots.append(rot)
@@ -76,24 +78,6 @@ def get_angle(paths):
     return robots
 
 
-def plot_motion(motion):
-
-    L = 0.3
-    h, k = motion
-
-    robot = [(h+0.5*L, k+0.5*L+0.2), (h+0.5*L, k - 0.5*L-0.2),
-             (h - 0.5 * L, k - 0.5 * L - 0.2), (h - 0.5 * L, k + 0.5 * L+0.2)]
-    xy = list(zip(*robot))
-    # print(xy)
-    xy[0] = list(xy[0])
-    xy[1] = list(xy[1])
-    xy[0].append(xy[0][0])
-    xy[1].append(xy[1][0])
-    plt.scatter(xy[0], xy[1], c="black",s=5)
-    # plt.pause(0.01)
-    plt.plot(xy[0][1:3], xy[1][1:3], c="r")
-
-
 def plot_Rmotion(robot):
     xy = list(zip(*robot))
     # print(xy)
@@ -101,9 +85,9 @@ def plot_Rmotion(robot):
     xy[1] = list(xy[1])
     xy[0].append(xy[0][0])
     xy[1].append(xy[1][0])
-    plt.scatter(xy[0], xy[1], c="black")
-    plt.plot(xy[0][0:2], xy[1][0:2], c="r")
-    plt.pause(0.01)
+    plt.scatter(xy[0], xy[1], c="black", s=5)
+    plt.plot(xy[0][1:3], xy[1][1:3], c="r")
+    # plt.pause(0.01)
     # plt.scatter(h, (k - 0.5 * L - 0.5), c='r')
 
 
@@ -117,36 +101,16 @@ def show_Rmotion(paths):
     count = 0
     while 1:
         plt.clf()
+        plot_obs()
+        plot_set_points()
         for i in range(0, len(robots)):
             try:
-                plot_path(paths[i])
+                # plot_path(paths[i])
                 plot_Rmotion(robots[i][count])
             except:
                 plot_Rmotion(robots[i][-1])
                 cond[i] = True
-        plt.pause(.1)
-        if all(cond):
-            break
-        count += 1
-
-
-def show_motion(paths):
-    fig1 = plt.figure(1)
-    cond = []
-    for i in paths:
-        cond.append(False)
-    count = 0
-    while 1:
-        plt.clf()
-        plot_obs()
-        for i in range(0, len(paths)):
-            try:
-                plot_path(paths[i])
-                plot_motion(paths[i][count])
-            except:
-                plot_motion(paths[i][-1])
-                cond[i] = True
-        plt.pause(.1)
+        plt.pause(.001)
         if all(cond):
             break
         count += 1
@@ -155,14 +119,18 @@ def show_motion(paths):
 def path():
     pack = pack_points()
     paths = []
-    ut = utils.utils(True)
+    ut = utils.utils(False, speed=True)
     for p in pack:
+        # plt.clf()
+        # plot_set_points()
+        # plot_obs()
         ut.set_path(paths)
         ut.set_pointions(p)
         pa, time_nodes = ut.get_rrt_path()
+        # print(time_nodes)
         if (p[1] in pa):
             print("Path found for :", p)
             paths.append(pa)
     # plot_obs()
-    show_motion(paths)
+    show_Rmotion(paths)
     plt.show()
