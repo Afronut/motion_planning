@@ -179,7 +179,8 @@ def test_exo2b(w, n_r=None, bench=False):
         plt.title(
             "No path for option {} run {}. Sampled points too sparse".format(n_r[0], n_r[1]))
     else:
-        plt.title("n= {}, r={}. path length is : {}".format(n_r[0], n_r[1], round(dist, 2)))
+        plt.title("n= {}, r={}. path length is : {}".format(
+            n_r[0], n_r[1], round(dist, 2)))
     fig = plt.figure(2)
     dists = []
     t_totals = []

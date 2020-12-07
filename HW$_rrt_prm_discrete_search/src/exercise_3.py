@@ -61,6 +61,7 @@ class exercise3():
             count += 1
         return G, free_nodes, all_nodes
 
+
     def unfreeze(self, G, free_nodes):
         d = list(G.edges)
         for ed in d:
