@@ -43,6 +43,7 @@ def plot_path(path):
             plt.plot([x[i], x[i+1]], [y[i], y[i+1]], lw=.5, c="y")
 
 
+
 def get_angle(paths):
     robots = []
     L = 0.4

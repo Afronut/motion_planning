@@ -22,6 +22,7 @@ class utils:
         self.plot_tree = plot_tree
         self.v = None
 
+
     def set_pointions(self, pos):
         self.start, self.goal, self.v = pos
 
