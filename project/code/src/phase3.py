@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy
 from math import pi
+import csv
+import os
+import sys
 
 i = scipy.pi
 dot = scipy.dot
@@ -37,7 +40,7 @@ def plot_path(path):
     if path:
         x, y = list(zip(*path))
         for i in range(0, len(x)-1):
-            plt.plot([x[i], x[i+1]], [y[i], y[i+1]], lw=1, c="y")
+            plt.plot([x[i], x[i+1]], [y[i], y[i+1]], lw=.5, c="y")
 
 
 def get_angle(paths):
@@ -105,7 +108,7 @@ def show_Rmotion(paths):
         plot_set_points()
         for i in range(0, len(robots)):
             try:
-                # plot_path(paths[i])
+                plot_path(paths[i])
                 plot_Rmotion(robots[i][count])
             except:
                 plot_Rmotion(robots[i][-1])
@@ -119,18 +122,26 @@ def show_Rmotion(paths):
 def path():
     pack = pack_points()
     paths = []
-    ut = utils.utils(False, speed=True)
+    ut = utils.utils(True, speed=True)
+    i=0
     for p in pack:
-        # plt.clf()
-        # plot_set_points()
-        # plot_obs()
+        saved_path = open(os.path.join(sys.path[0], "src/paths/path{0}{1}".format(i,".csv")), 'w+', newline='')
+        write = csv.writer(saved_path)
+        plt.clf()
+        plot_set_points()
+        plot_obs()
         ut.set_path(paths)
         ut.set_pointions(p)
         pa, time_nodes = ut.get_rrt_path()
         # print(time_nodes)
         if (p[1] in pa):
+            for cord in pa:
+                write.writerow(cord)
             print("Path found for :", p)
             paths.append(pa)
+        plt.close()
+        i+=1
+
     # plot_obs()
     show_Rmotion(paths)
     plt.show()

@@ -16,6 +16,7 @@ for ob in obs:
     b = [tuple(row) for row in np.reshape(ob, (-1, 2))]
     obstacles.append(b)
     obs = obstacles
+    # print(obs)
 # print(obs)
 
 

@@ -13,7 +13,7 @@ class utils:
         self.start = None
         self.goal = None
         self.speed = speed
-        self.width = 0.3
+        self.width = 0.4
         self.max_iter, self.step = [100000, 0.5]
         self.obs = obs
         self.bonds = get_bond()
@@ -198,21 +198,40 @@ class utils:
     def is_timed_free(self, edge, t_node):
         if not self.is_obstacle_free(edge):
             return False
-        edge_line = LineString(edge).buffer(self.width)
         t = 0
-        t_time = round(t_node[1], 2)
+        t_time = 5*self.step/self.v
         for path in self.paths:
             t = 0
             for i, p in enumerate(path):
                 if i == len(path)-1:
                     break
-                line = LineString([p, path[i + 1]]).buffer(self.width)
                 p1 = Point(p[0], p[1])
-                p2 = Point(path[i+1][0], path[i+1][1])
+                p2 = Point(path[i + 1][0], path[i + 1][1])
+                p4 = Point(edge[0][0], edge[0][1])
+                line = LineString([p, path[i + 1]]).buffer(self.width)
                 dist = p1.distance(p2)
+                edge_line = LineString(edge).buffer(self.width)
+                if edge_line.intersects(line):
+                    inter_point = edge_line.intersection(line)
+                    # print(type(inter_point))
+                    # print(inter_point)
+                    x = []
+                    y = []
+                    if isinstance(inter_point, (Point, LineString)):
+                        x, y = inter_point.coords.xy
+                    else:
+                        x, y = inter_point.exterior.coords.xy
+                    # print(x, y)
+                    if x and y:
+                        p3 = Point(x[0], y[0])
+                        time_edge_inter = round(
+                            t_node[1]-((p4.distance(p3))/self.v), 2)
+                        time_path_inter = round(
+                            ( t+(p1.disjoint(p3)) / self.v), 2)
+                        time_diff = abs(time_edge_inter-time_path_inter)
+                        if time_diff < t_time:
+                            return False
                 t += round(self.v/dist, 2)
-                if edge_line.intersects(line) and t == t_time:
-                    return False
         return True
 
     def add_edge(self, nodes, point, time_nodes):
