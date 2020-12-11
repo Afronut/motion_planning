@@ -22,7 +22,6 @@ class utils:
         self.plot_tree = plot_tree
         self.v = None
 
-
     def set_pointions(self, pos):
         self.start, self.goal, self.v = pos
 
@@ -220,12 +219,15 @@ class utils:
                     else:
                         x, y = inter_point.exterior.coords.xy
                     # print(x, y)
-                    if x and y:
-                        p3 = Point(x[0], y[0])
+                    if not x and not y:
+                        continue
+
+                    for i in range(0, len(x)):
+                        p3 = Point(x[i], y[i])
                         time_edge_inter = round(
                             t_node[1]-((p4.distance(p3))/self.v), 2)
                         time_path_inter = round(
-                            ( t+(p1.disjoint(p3)) / self.v), 2)
+                            (t+(p1.disjoint(p3)) / self.v), 2)
                         time_diff = abs(time_edge_inter-time_path_inter)
                         if time_diff < t_time:
                             return False

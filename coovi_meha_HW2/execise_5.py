@@ -61,8 +61,6 @@ class execise_5:
 
     def construct_polygon(self, vect_obst, vect_robot, degree_ob, degree_robot, degree):
         C_obs = []
-        # print(vect_obst)
-        # print(vect_robot)
         C_obs.append(vect_obst[0]+vect_robot[0])
         done = False
         i = 0
@@ -70,22 +68,16 @@ class execise_5:
         ang_obs = degree_ob[0]
         ang_rob = degree_robot[0]
         while not done:
-            # print(len(degree_robot))
-            # print(len(degree_ob))
             if i == len(vect_robot)-1:
                 i = -1
             if j == len(vect_obst)-1:
                 j = -1
             if ang_obs < ang_rob:
-                # print(degree_ob)
-                # print(degree_robot)
                 C_obs.append(vect_robot[i]+vect_obst[j+1])
                 if len(degree_ob) != 0:
                     ang_obs = degree_ob.pop(0)
                 j += 1
             elif ang_obs > ang_rob:
-                # print(degree_ob)
-                # print(degree_robot)
                 C_obs.append(vect_robot[i+1]+vect_obst[j])
                 if len(degree_robot) != 0:
                     ang_rob = degree_robot.pop(0)
@@ -100,10 +92,7 @@ class execise_5:
                     ang_rob = degree_robot.pop(0)
             if (len(degree_robot) == 0 and not len(degree_ob) == 0) or len(C_obs) == (len(vect_robot)+len(vect_obst)-2):
                 done = True
-            # print(C_obs)
         for i in range(0, len(C_obs)):
-            # print(degree)
             C_obs[i] = np.append(np.radians(degree), C_obs[i])
             C_obs[i] = tuple(C_obs[i])
-        # print(C_obs[1])
         return C_obs
