@@ -43,7 +43,6 @@ def plot_path(path):
             plt.plot([x[i], x[i+1]], [y[i], y[i+1]], lw=.5, c="y")
 
 
-
 def get_angle(paths):
     robots = []
     L = 0.4
@@ -120,17 +119,19 @@ def show_Rmotion(paths):
         count += 1
 
 
-def path():
+def path(tree=False):
     pack = pack_points()
     paths = []
-    ut = utils.utils(True, speed=True)
-    i=0
+    ut = utils.utils(tree, speed=True)
+    i = 0
     for p in pack:
-        saved_path = open(os.path.join(sys.path[0], "src/paths/path{0}{1}".format(i,".csv")), 'w+', newline='')
+        saved_path = open(os.path.join(
+            sys.path[0], "src/paths/path{0}{1}".format(i, ".csv")), 'w+', newline='')
         write = csv.writer(saved_path)
-        plt.clf()
-        plot_set_points()
-        plot_obs()
+        if (tree):
+            plt.clf()
+            plot_set_points()
+            plot_obs()
         ut.set_path(paths)
         ut.set_pointions(p)
         pa, time_nodes = ut.get_rrt_path()
@@ -141,7 +142,7 @@ def path():
             print("Path found for :", p)
             paths.append(pa)
         plt.close()
-        i+=1
+        i += 1
 
     # plot_obs()
     show_Rmotion(paths)

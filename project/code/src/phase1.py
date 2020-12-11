@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy
 from math import pi
+import sys
+import os
+import csv
 
 i = scipy.pi
 dot = scipy.dot
@@ -89,7 +92,7 @@ def plot_motion(motion):
     xy[1] = list(xy[1])
     xy[0].append(xy[0][0])
     xy[1].append(xy[1][0])
-    plt.scatter(xy[0], xy[1], c="black",s=5)
+    plt.scatter(xy[0], xy[1], c="black", s=5)
     # plt.pause(0.01)
     plt.plot(xy[0][1:3], xy[1][1:3], c="r")
 
@@ -152,17 +155,37 @@ def show_motion(paths):
         count += 1
 
 
-def path():
+def plot_set_points():
+    pack = pack_points()
+    for p in pack:
+        X, Y, V = p
+        plt.scatter(X[0], X[1], c='g')
+        plt.scatter(Y[0], Y[1], c='r')
+
+
+def path(tree=False):
     pack = pack_points()
     paths = []
-    ut = utils.utils(True)
+    ut = utils.utils(tree, speed=True)
+    i = 0
     for p in pack:
+        saved_path = open(os.path.join(
+            sys.path[0], "src/paths/path{0}{1}".format(i, ".csv")), 'w+', newline='')
+        write = csv.writer(saved_path)
+        if (tree):
+            plt.clf()
+            plot_set_points()
+            plot_obs()
         ut.set_path(paths)
         ut.set_pointions(p)
         pa, time_nodes = ut.get_rrt_path()
+        # print(time_nodes)
         if (p[1] in pa):
+            for cord in pa:
+                write.writerow(cord)
             print("Path found for :", p)
             paths.append(pa)
-    # plot_obs()
+        plt.close()
+        i += 1
     show_motion(paths)
     plt.show()
