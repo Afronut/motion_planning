@@ -199,7 +199,7 @@ class utils:
         if not self.is_obstacle_free(edge):
             return False
         t = 0
-        t_time = 2*self.step/self.v
+        t_time = 5*self.step/self.v
         for path in self.paths:
             t = 0
             for i, p in enumerate(path):
@@ -212,6 +212,9 @@ class utils:
                 dist = p1.distance(p2)
                 edge_line = LineString(edge).buffer(self.width)
                 if edge_line.intersects(line):
+                    inter_point = edge_line.intersection(line)
+                    # print(type(inter_point))
+                    # print(inter_point)
                     x = []
                     y = []
                     if isinstance(inter_point, (Point, LineString)):
