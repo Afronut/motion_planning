@@ -199,7 +199,7 @@ class utils:
         if not self.is_obstacle_free(edge):
             return False
         t = 0
-        t_time = 5*self.step/self.v
+        t_time = 3*self.step/self.v
         for path in self.paths:
             t = 0
             for i, p in enumerate(path):
@@ -234,7 +234,7 @@ class utils:
                         time_diff = abs(time_edge_inter-time_path_inter)
                         if time_diff < t_time:
                             return False
-                t += round(self.v/dist, 2)
+                t += round(dist/self.v, 2)
         return True
 
     def add_edge(self, nodes, point, time_nodes):
