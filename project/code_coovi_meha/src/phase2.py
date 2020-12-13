@@ -22,6 +22,7 @@ def plot_set_points():
         plt.scatter(X[0], X[1], c='g')
         plt.scatter(Y[0], Y[1], c='r')
 
+
 def plot_set_points():
     pack = pack_points()
     for p in pack:
