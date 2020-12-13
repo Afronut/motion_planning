@@ -10,7 +10,7 @@ You must install the following packages
 - scipy `pip install scipy`
 - pandas `pip install pandas`
 
-# HOw to run this code
+# How to run this code
 
 There are the obstacles set in the src/obstacles.csv.
 The goal and start point are set in the src/constraints.csv. There are 10 total robot preset in the file. you can delete or add new one. the 3rd variable is the velocity of the robot. They can be any value, however, the plotting will not show the difference of velocity.
