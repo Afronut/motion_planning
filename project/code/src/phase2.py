@@ -21,7 +21,7 @@ def plot_set_points():
         X, Y, V = p
         plt.scatter(X[0], X[1], c='g')
         plt.scatter(Y[0], Y[1], c='r')
-        
+
 def plot_set_points():
     pack = pack_points()
     for p in pack:
@@ -128,11 +128,11 @@ def show_Rmotion(paths):
 def path(tree=False):
     pack = pack_points()
     paths = []
-    ut = utils.utils(tree, speed=True)
+    ut = utils.utils(tree, speed=False)
     i = 0
     for p in pack:
         saved_path = open(os.path.join(
-            sys.path[0], "src/paths/path{0}{1}".format(i, ".csv")), 'w+', newline='')
+            sys.path[0], "paths/path{0}{1}".format(i, ".csv")), 'w+', newline='')
         write = csv.writer(saved_path)
         if (tree):
             plt.clf()

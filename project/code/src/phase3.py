@@ -126,7 +126,7 @@ def path(tree=False):
     i = 0
     for p in pack:
         saved_path = open(os.path.join(
-            sys.path[0], "src/paths/path{0}{1}".format(i, ".csv")), 'w+', newline='')
+            sys.path[0], "paths/path{0}{1}".format(i, ".csv")), 'w+', newline='')
         write = csv.writer(saved_path)
         if (tree):
             plt.clf()
@@ -143,7 +143,6 @@ def path(tree=False):
             paths.append(pa)
         plt.close()
         i += 1
-
     # plot_obs()
-    show_Rmotion(paths)
-    plt.show()
+    # show_Rmotion(paths)
+    # plt.show()

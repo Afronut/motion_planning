@@ -2,7 +2,7 @@ from src.util import utils
 from src.phase1 import path as path1
 from src.phase2 import path as path2
 from src.phase3 import path as path3
-
+import time
 import matplotlib.pyplot as plt
 
 
@@ -20,6 +20,7 @@ def phase_3(tree=False):
 
 if __name__ == "__main__":
     inp = input("Enter phase to run (1,2 or 3): ")
+    conter = 0
     try:
         inp = int(inp)
     except:
@@ -35,8 +36,12 @@ if __name__ == "__main__":
     elif (inp == 2):
         phase_2(tree)
     elif (inp == 3):
-        phase_3(tree)
-
+        for i in range(0, 10):
+            start = time.perf_counter()
+            phase_3(tree)
+            conter += (time.perf_counter()-start)
+    t_time = conter / 10
+    print("It took", t_time)
     # const = ph1.make_const()
     # print(const)
     # plt.show()
